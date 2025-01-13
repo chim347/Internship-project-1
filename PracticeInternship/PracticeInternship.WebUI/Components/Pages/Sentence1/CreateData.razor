@@ -1,0 +1,59 @@
+﻿@page "/sentence1/createData"
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.Application.DTOs.Conversions
+@using PracticeInternship.Application.Responses
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh donViTinhInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Tạo đơn vị tính</PageTitle>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <EditForm Enhance="true" FormName="CreateDonViTinhForm" OnValidSubmit="CreateDonViTinh" Model="dM_Don_Vi_Tinh">
+            <h3>Thêm mới</h3>
+            <div class="mb-3">
+                <label for="name" class="form-label">Tên đơn vị tính</label>
+                <InputText id="name" @bind-Value="dM_Don_Vi_Tinh.Ten_Don_Vi_Tinh" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Ghi chú</label>
+                <InputText id="note" @bind-Value="dM_Don_Vi_Tinh.Ghi_Chu" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-primary shadow-none">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@* await donViTinhInterface.CreateAsync(dM_Don_Vi_Tinh); *@
+@* [SupplyParameterFromForm] *@
+
+@code {
+
+    private DM_Don_Vi_Tinh_DTO dM_Don_Vi_Tinh { get; set; } = new DM_Don_Vi_Tinh_DTO();
+
+    private async Task CreateDonViTinh()
+    {
+        try
+        {
+            var getEntity = DM_Don_Vi_Tinh_Conversion.ToEntity(dM_Don_Vi_Tinh);
+            var response = await donViTinhInterface.CreateAsync(getEntity);
+
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence1/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm mới thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

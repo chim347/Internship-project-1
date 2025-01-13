@@ -1,0 +1,51 @@
+﻿@if (Show)
+{
+    <div class="confirm-dialog-container">
+        <div class="confirm-dialog">
+            <h3 class="text-center">Xác nhận xóa</h3>
+
+            <div class="d-flex flex-row justify-content-center mt-3">
+                <button @onclick="OnDelete" class="btn btn-danger shadow-none">Delete</button>
+                <button @onclick="OnCancel" class="btn btn-secondary shadow-none ms-3">Cancel</button>
+            </div>
+            
+        </div>
+    </div>
+}
+
+<style>
+    .confirm-dialog-container{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+    }
+
+    .confirm-dialog{
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        justify-content: space-between;
+        min-width: 20rem;
+        padding: 2rem;
+        border-radius: 1rem;
+        position: fixed;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel{ get; set; }
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+}

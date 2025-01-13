@@ -1,0 +1,47 @@
+﻿@page "/sentence1/editData/{id:int}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh donViTinhInterface
+@inject NavigationManager NavigationManager
+
+<PageTitle>Chỉnh sửa đơn vị tính</PageTitle>
+@if (dM_Don_Vi_Tinh != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditDonViTinhForm" OnValidSubmit="EditDonViTinh" Model="dM_Don_Vi_Tinh">
+                <h3>Chỉnh sửa</h3>
+                <input type="hidden" name="dM_Don_Vi_Tinh.Id" value="@dM_Don_Vi_Tinh.Id"/>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Tên đơn vị tính</label>
+                    <InputText id="name" @bind-Value="dM_Don_Vi_Tinh.Ten_Don_Vi_Tinh" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <InputText id="note" @bind-Value="dM_Don_Vi_Tinh.Ghi_Chu" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence1/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh mục đơn vị tính</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Don_Vi_Tinh? dM_Don_Vi_Tinh { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Don_Vi_Tinh ??= await donViTinhInterface.GetByIdAsync(Id);
+    }
+
+    private async Task EditDonViTinh()
+    {
+        await donViTinhInterface.UpdateAsync(dM_Don_Vi_Tinh);
+        NavigationManager.NavigateTo("/sentence1/reading");
+    }
+}

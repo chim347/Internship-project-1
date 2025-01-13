@@ -1,0 +1,86 @@
+﻿@page "/sentence1/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh DonViTinhInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Sentence 1</PageTitle>
+
+<h1>Danh sách danh mục đơn vị tính</h1>
+
+@if (DonViTinhs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <a href="sentence1/createData" class="btn btn-primary">+ Thêm mới đơn vị tính</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Tên đơn vị tính</th>
+                <th>Ghi chú</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in DonViTinhs)
+            {
+                <tr>
+                    <td>@forecast.Id</td>
+                    <td>@forecast.Ten_Don_Vi_Tinh</td>
+                    <td>@forecast.Ghi_Chu</td>
+                    <td>
+                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence1/editData/{forecast.Id}")">Sửa</a>
+                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Xóa</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<DeleteConfirmDialog Show="ShowDialog" OnCancel="CancelDelete" OnDelete="DeleteDonViTinh" />
+
+
+@code {
+    // dialog
+    [Parameter]
+    public required DM_Don_Vi_Tinh? dM_Don_Vi_Tinh { get; set; }
+    [Parameter]
+    public bool ShowDialog { get; set; }
+    public void DeleteDialog(DM_Don_Vi_Tinh donViTinh)
+    {
+        dM_Don_Vi_Tinh = donViTinh;
+        ShowDialog = true;
+    }
+    public void CancelDelete()
+    {
+        dM_Don_Vi_Tinh = null;
+        ShowDialog = false;
+    }
+    public async void DeleteDonViTinh()
+    {
+        await DonViTinhInterface.DeleteAsync(dM_Don_Vi_Tinh);
+        ShowDialog = false;
+        DonViTinhs = await DonViTinhInterface.GetAllAsync();
+        StateHasChanged();
+    }
+
+
+    public IEnumerable<DM_Don_Vi_Tinh>? DonViTinhs { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        DonViTinhs = await DonViTinhInterface.GetAllAsync();
+    }
+}
