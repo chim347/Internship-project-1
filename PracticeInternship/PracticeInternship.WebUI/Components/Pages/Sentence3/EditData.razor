@@ -1,0 +1,75 @@
+﻿@page "/sentence3/editData/{id:int}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Chỉnh sửa sản phầm</PageTitle>
+@if (dM_San_Pham != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditSanPhamForm" OnValidSubmit="EditSanPham" Model="dM_San_Pham">
+                <h3>Chỉnh sửa</h3>
+                <input type="hidden" name="dM_San_Pham.Id" value="@dM_San_Pham.Id" />
+                <div class="mb-3">
+                    <label for="code" class="form-label">Mã sản phẩm</label>
+                    <InputText id="code" @bind-Value="dM_San_Pham.Ma_San_Pham" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Tên sản phẩm</label>
+                    <InputText id="name" @bind-Value="dM_San_Pham.Ten_San_Pham" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <InputText id="note" @bind-Value="dM_San_Pham.Ghi_Chu" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Đơn vị tính</label>
+                    <InputNumber id="note" @bind-Value="dM_San_Pham.Don_Vi_Tinh_Id" class="form-control"></InputNumber>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Loại sản phẩm</label>
+                    <InputNumber id="note" @bind-Value="dM_San_Pham.Loai_San_Pham_Id" class="form-control"></InputNumber>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence3/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh mục sản phẩm</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_San_Pham? dM_San_Pham { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_San_Pham ??= await SanPhamInterface.GetByIdAsync(Id);
+    }
+
+    private async Task EditSanPham()
+    {
+        try
+        {
+            var response = await SanPhamInterface.UpdateAsync(dM_San_Pham!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence3/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

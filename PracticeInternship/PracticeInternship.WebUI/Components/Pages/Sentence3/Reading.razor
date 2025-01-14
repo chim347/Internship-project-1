@@ -1,0 +1,93 @@
+﻿@page "/sentence3/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Sentence 2</PageTitle>
+
+<h1>Danh sách danh mục sản phẩm</h1>
+
+@if (sanPhams == null)
+{
+    <p><em>Loading...</em></p>
+    <div class="d-flex justify-content-end">
+        <a href="sentence3/createData" class="btn btn-primary">+ Thêm mới sản phẩm</a>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <a href="sentence3/createData" class="btn btn-primary">+ Thêm mới sản phẩm</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã sản phẩm</th>
+                <th>Tên sản phẩm</th>
+                <th>Ghi chú</th>
+                <th>Đơn vị tính</th>
+                <th>Loại sản phẩm</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in sanPhams)
+            {
+                <tr>
+                    <td>@forecast.Ma_San_Pham</td>
+                    <td>@forecast.Ten_San_Pham</td>
+                    <td>@forecast.Ghi_Chu</td>
+                    <td>@forecast.Don_Vi_Tinh_Id</td>
+                    <td>@forecast.Loai_San_Pham_Id</td>
+                    <td>
+                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence3/editData/{forecast.Id}")">Edit</a>
+                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<DeleteConfirmDialog Show="ShowDialog" OnCancel="CancelDelete" OnDelete="DeleteLoaiSanPham" />
+
+
+@code {
+    // dialog
+    [Parameter]
+    public required DM_San_Pham? dM_San_Pham { get; set; }
+    [Parameter]
+    public bool ShowDialog { get; set; }
+    public void DeleteDialog(DM_San_Pham sanPham)
+    {
+        dM_San_Pham = sanPham;
+        ShowDialog = true;
+    }
+    public void CancelDelete()
+    {
+        dM_San_Pham = null;
+        ShowDialog = false;
+    }
+    public async void DeleteLoaiSanPham()
+    {
+        await SanPhamInterface.DeleteAsync(dM_San_Pham!);
+        ShowDialog = false;
+        sanPhams = await SanPhamInterface.GetAllAsync();
+        StateHasChanged();
+    }
+
+
+    public IEnumerable<DM_San_Pham>? sanPhams { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        sanPhams = await SanPhamInterface.GetAllAsync();
+    }
+}

@@ -1,0 +1,67 @@
+﻿@page "/sentence3/createData"
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.Application.DTOs.Conversions
+@using PracticeInternship.Application.Responses
+@inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Tạo mới sản phẩm</PageTitle>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <EditForm Enhance="true" FormName="CreateSanPhamForm" OnValidSubmit="CreateSanPham" Model="dM_San_Pham">
+            <h3>Thêm mới</h3>
+            <div class="mb-3">
+                <label for="code" class="form-label">Mã sản phẩm</label>
+                <InputText id="code" @bind-Value="dM_San_Pham.Ma_San_Pham" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Tên sản phẩm</label>
+                <InputText id="name" @bind-Value="dM_San_Pham.Ten_San_Pham" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Ghi chú</label>
+                <InputText id="note" @bind-Value="dM_San_Pham.Ghi_Chu" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="DonViTinhId" class="form-label">Đơn vị tính</label>
+                <InputNumber id="DonViTinhId" @bind-Value="dM_San_Pham.Don_Vi_Tinh_Id" class="form-control"></InputNumber>
+            </div>
+            <div class="mb-3">
+                <label for="LoaiSanPhamId" class="form-label">Loại sản phẩm</label>
+                <InputNumber id="LoaiSanPhamId" @bind-Value="dM_San_Pham.Loai_San_Pham_Id" class="form-control"></InputNumber>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-primary shadow-none">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private DM_San_Pham dM_San_Pham { get; set; } = new DM_San_Pham();
+
+    private async Task CreateSanPham()
+    {
+        try
+        {
+            var response = await SanPhamInterface.CreateAsync(dM_San_Pham);
+
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence3/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm mới thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

@@ -15,13 +15,9 @@ namespace PracticeInternship.Infrastructure.Repositories
             try
             {
                 // check null
-                if (string.IsNullOrEmpty(entity.Ten_LSP))
+                if (string.IsNullOrEmpty(entity.Ten_LSP) || string.IsNullOrEmpty(entity.Ma_LSP))
                 {
-                    return new Response(false, $"Name of product is not Empty!!");
-                }
-                if (string.IsNullOrEmpty(entity.Ma_LSP))
-                {
-                    return new Response(false, $"Name of product is not Empty!!");
+                    return new Response(false, $"Name or Ma_LSP of product is not Empty!!");
                 }
 
                 // check Ten_Loai_San_Pham va Ma_LSP is already exist
@@ -124,6 +120,12 @@ namespace PracticeInternship.Infrastructure.Repositories
                     return new Response(false, $"{entity.Ten_LSP} not found");
                 }
 
+                // check null
+                if (string.IsNullOrEmpty(entity.Ten_LSP) || string.IsNullOrEmpty(entity.Ma_LSP))
+                {
+                    return new Response(false, $"Name or Ma_LSP of product is not Empty!!");
+                }
+
                 // check Ten_Loai_San_Pham va Ma_LSP is already exist
                 if (!string.Equals(loaiSanPham.Ten_LSP, entity.Ten_LSP, StringComparison.OrdinalIgnoreCase) ||
                     !string.Equals(loaiSanPham.Ma_LSP, entity.Ma_LSP, StringComparison.OrdinalIgnoreCase))
@@ -148,7 +150,7 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error occurred updating existing DM_Don_Vi_Tinh, {ex.Message}");
+                throw new Exception($"Error occurred updating existing DM_Loai_San_Pham, {ex.Message}");
             }
         }
     }

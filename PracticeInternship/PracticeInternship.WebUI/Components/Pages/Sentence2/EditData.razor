@@ -1,8 +1,9 @@
 ﻿@page "/sentence2/editData/{id:int}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
 @inject NavigationManager NavigationManager
+@inject IToastService ToastService
 
-<PageTitle>Chỉnh sửa đơn vị tính</PageTitle>
+<PageTitle>Chỉnh sửa loại sản phẩm</PageTitle>
 @if (dM_Loai_San_Pham != null)
 {
     <div class="row justify-content-center">
@@ -45,7 +46,22 @@
 
     private async Task EditLoaiSanPham()
     {
-        await LoaiSanPhamInterface.UpdateAsync(dM_Loai_San_Pham!);
-        NavigationManager.NavigateTo("/sentence2/reading");
+        try
+        {
+            var response = await LoaiSanPhamInterface.UpdateAsync(dM_Loai_San_Pham!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence2/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
     }
 }
