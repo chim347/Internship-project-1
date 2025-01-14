@@ -1,0 +1,91 @@
+﻿@page "/sentence6/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho_User KhoUserInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Sentence 6</PageTitle>
+
+<h1>Danh sách danh mục phần quyền user kho</h1>
+
+@if (khoUsers == null)
+{
+    <p><em>Loading...</em></p>
+    <div class="d-flex justify-content-end">
+        <a href="sentence6/createData" class="btn btn-primary">+ Thêm mới kho user</a>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <a href="sentence6/createData" class="btn btn-primary">+ Thêm mới kho user</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã đăng nhập</th>
+                <th>Tên Kho</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in khoUsers)
+            {
+                <tr>
+                    <td>@forecast.Ma_Dang_Nhap</td>
+                    <td>
+                        @khos!.FirstOrDefault(kho => kho.Id == forecast.Kho_Id)!.Ten_Kho
+                        </td>
+                    <td>
+                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<DeleteConfirmDialog Show="ShowDialog" OnCancel="CancelDelete" OnDelete="DeleteKho" />
+
+
+@code {
+    // dialog
+    [Parameter]
+    public required DM_Kho_User? dM_Kho_User { get; set; }
+    [Parameter]
+    public bool ShowDialog { get; set; }
+    public void DeleteDialog(DM_Kho_User khoUser)
+    {
+        dM_Kho_User = khoUser;
+        ShowDialog = true;
+    }
+    public void CancelDelete()
+    {
+        dM_Kho_User = null;
+        ShowDialog = false;
+    }
+    public async void DeleteKho()
+    {
+        await KhoUserInterface.DeleteAsync(dM_Kho_User!);
+        ShowDialog = false;
+        khoUsers = await KhoUserInterface.GetAllAsync();
+        StateHasChanged();
+    }
+
+
+    public IEnumerable<DM_Kho>? khos { get; set; }
+    public IEnumerable<DM_Kho_User>? khoUsers { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        khos = await KhoInterface.GetAllAsync();
+        khoUsers = await KhoUserInterface.GetAllAsync();
+    }
+}
