@@ -14,5 +14,6 @@ namespace PracticeInternship.Infrastructure.Data
         public DbSet<DM_Loai_San_Pham> DM_Loai_San_Pham { get; set; }
         public DbSet<DM_San_Pham> DM_San_Pham { get; set; }
         public DbSet<DM_NCC> DM_NCC { get; set; }
+        public DbSet<DM_Kho> DM_Kho { get; set; }
     }
 }

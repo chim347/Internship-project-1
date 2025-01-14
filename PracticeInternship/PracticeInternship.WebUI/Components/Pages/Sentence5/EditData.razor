@@ -1,0 +1,63 @@
+﻿@page "/sentence5/editData/{id:int}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Chỉnh sửa kho</PageTitle>
+@if (dM_Kho != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditKhoForm" OnValidSubmit="EditKho" Model="dM_Kho">
+                <h3>Chỉnh sửa</h3>
+                <input type="hidden" name="dM_NCC.Id" value="@dM_Kho.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Tên kho</label>
+                    <InputText id="name" @bind-Value="dM_Kho.Ten_Kho" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <InputText id="note" @bind-Value="dM_Kho.Ghi_Chu" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence5/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh mục kho</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Kho? dM_Kho { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Kho ??= await KhoInterface.GetByIdAsync(Id);
+    }
+
+    private async Task EditKho()
+    {
+        try
+        {
+            var response = await KhoInterface.UpdateAsync(dM_Kho!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence5/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

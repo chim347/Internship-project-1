@@ -1,0 +1,55 @@
+﻿@page "/sentence5/createData"
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.Application.DTOs.Conversions
+@using PracticeInternship.Application.Responses
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Tạo mới kho</PageTitle>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <EditForm Enhance="true" FormName="CreateKhoForm" OnValidSubmit="CreateKho" Model="dM_Kho">
+            <h3>Thêm mới</h3>
+            <div class="mb-3">
+                <label for="name" class="form-label">Tên kho</label>
+                <InputText id="name" @bind-Value="dM_Kho.Ten_Kho" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Ghi chú</label>
+                <InputText id="note" @bind-Value="dM_Kho.Ghi_Chu" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-primary shadow-none">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private DM_Kho dM_Kho { get; set; } = new DM_Kho();
+
+    private async Task CreateKho()
+    {
+        try
+        {
+            var response = await KhoInterface.CreateAsync(dM_Kho);
+
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence5/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm mới thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

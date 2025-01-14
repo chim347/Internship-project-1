@@ -1,0 +1,87 @@
+﻿@page "/sentence5/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Sentence 5</PageTitle>
+
+<h1>Danh sách danh mục kho</h1>
+
+@if (khos == null)
+{
+    <p><em>Loading...</em></p>
+    <div class="d-flex justify-content-end">
+        <a href="sentence5/createData" class="btn btn-primary">+ Thêm mới kho</a>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <a href="sentence5/createData" class="btn btn-primary">+ Thêm mới kho</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên kho</th>
+                <th>Ghi chú</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in khos)
+            {
+                <tr>
+                    <td>@forecast.Ten_Kho</td>
+                    <td>@forecast.Ghi_Chu</td>
+                    <td>
+                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence5/editData/{forecast.Id}")">Edit</a>
+                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<DeleteConfirmDialog Show="ShowDialog" OnCancel="CancelDelete" OnDelete="DeleteKho" />
+
+
+@code {
+    // dialog
+    [Parameter]
+    public required DM_Kho? dM_Kho { get; set; }
+    [Parameter]
+    public bool ShowDialog { get; set; }
+    public void DeleteDialog(DM_Kho kho)
+    {
+        dM_Kho = kho;
+        ShowDialog = true;
+    }
+    public void CancelDelete()
+    {
+        dM_Kho = null;
+        ShowDialog = false;
+    }
+    public async void DeleteKho()
+    {
+        await KhoInterface.DeleteAsync(dM_Kho!);
+        ShowDialog = false;
+        khos = await KhoInterface.GetAllAsync();
+        StateHasChanged();
+    }
+
+
+    public IEnumerable<DM_Kho>? khos { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        khos = await KhoInterface.GetAllAsync();
+    }
+}
