@@ -1,0 +1,51 @@
+﻿@page "/sentence2/editData/{id:int}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
+@inject NavigationManager NavigationManager
+
+<PageTitle>Chỉnh sửa đơn vị tính</PageTitle>
+@if (dM_Loai_San_Pham != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditLoaiSanPhamForm" OnValidSubmit="EditLoaiSanPham" Model="dM_Loai_San_Pham">
+                <h3>Chỉnh sửa</h3>
+                <input type="hidden" name="dM_Loai_San_Pham.Id" value="@dM_Loai_San_Pham.Id" />
+                <div class="mb-3">
+                    <label for="code" class="form-label">Mã loại sản phẩm</label>
+                    <InputText id="code" @bind-Value="dM_Loai_San_Pham.Ma_LSP" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Tên loại sản phẩm</label>
+                    <InputText id="name" @bind-Value="dM_Loai_San_Pham.Ten_LSP" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <InputText id="note" @bind-Value="dM_Loai_San_Pham.Ghi_Chu" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence2/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh mục loại sản phẩm</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Loai_San_Pham? dM_Loai_San_Pham { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Loai_San_Pham ??= await LoaiSanPhamInterface.GetByIdAsync(Id);
+    }
+
+    private async Task EditLoaiSanPham()
+    {
+        await LoaiSanPhamInterface.UpdateAsync(dM_Loai_San_Pham!);
+        NavigationManager.NavigateTo("/sentence2/reading");
+    }
+}

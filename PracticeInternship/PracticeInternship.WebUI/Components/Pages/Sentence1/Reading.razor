@@ -14,6 +14,9 @@
 @if (DonViTinhs == null)
 {
     <p><em>Loading...</em></p>
+    <div class="d-flex justify-content-end">
+        <a href="sentence1/createData" class="btn btn-primary">+ Thêm mới đơn vị tính</a>
+    </div>
 }
 else
 {
@@ -38,8 +41,8 @@ else
                     <td>@forecast.Ten_Don_Vi_Tinh</td>
                     <td>@forecast.Ghi_Chu</td>
                     <td>
-                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence1/editData/{forecast.Id}")">Sửa</a>
-                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Xóa</button>
+                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence1/editData/{forecast.Id}")">Edit</a>
+                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
                     </td>
 
                 </tr>

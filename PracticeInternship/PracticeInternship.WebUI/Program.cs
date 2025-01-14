@@ -12,6 +12,7 @@ builder.Services.AddInfrastructureService(builder.Configuration);
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
+builder.Services.AddBlazorBootstrap();
 
 var app = builder.Build();
 

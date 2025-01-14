@@ -19,6 +19,7 @@ namespace PracticeInternship.Infrastructure.DependencyInjection
 
             // Create dependency injection
             services.AddScoped<Interface_DM_Don_Vi_Tinh, DM_Don_Vi_Tinh_Repository>();
+            services.AddScoped<Interface_DM_Loai_San_Pham, DM_Loai_San_Pham_Repository>();
 
 
             return services;

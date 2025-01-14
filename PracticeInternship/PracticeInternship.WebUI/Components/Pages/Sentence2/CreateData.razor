@@ -1,0 +1,59 @@
+﻿@page "/sentence2/createData"
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.Application.DTOs.Conversions
+@using PracticeInternship.Application.Responses
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Tạo mới loại sản phẩm</PageTitle>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <EditForm Enhance="true" FormName="CreateLoaiSanPhamForm" OnValidSubmit="CreateLoaiSanPham" Model="dM_Loai_San_Pham">
+            <h3>Thêm mới</h3>
+            <div class="mb-3">
+                <label for="code" class="form-label">Mã loại sản phẩm</label>
+                <InputText id="code" @bind-Value="dM_Loai_San_Pham.Ma_LSP" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Tên loại sản phẩm</label>
+                <InputText id="name" @bind-Value="dM_Loai_San_Pham.Ten_LSP" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Ghi chú</label>
+                <InputText id="note" @bind-Value="dM_Loai_San_Pham.Ghi_Chu" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-primary shadow-none">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private DM_Loai_San_Pham dM_Loai_San_Pham { get; set; } = new DM_Loai_San_Pham();
+
+    private async Task CreateLoaiSanPham()
+    {
+        try
+        {
+            var response = await LoaiSanPhamInterface.CreateAsync(dM_Loai_San_Pham);
+
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence2/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm mới thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

@@ -14,7 +14,7 @@ namespace PracticeInternship.Infrastructure.Repositories
             try
             {
                 // check null
-                if(string.IsNullOrEmpty(entity.Ten_Don_Vi_Tinh))
+                if (string.IsNullOrEmpty(entity.Ten_Don_Vi_Tinh))
                 {
                     return new Response(false, $"Tên đơn vị không được rỗng!!");
                 }
@@ -107,22 +107,25 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var donViTinh = await GetByIdAsync(entity.Id);  
-                if(donViTinh == null)
+                var donViTinh = await GetByIdAsync(entity.Id);
+                if (donViTinh == null)
                 {
                     return new Response(false, $"{entity.Ten_Don_Vi_Tinh} not found");
                 }
 
                 // check Ten_Don_Vi_Tinh is already exist
-                var getDonViTinh = await GetByAsync(_ => _.Ten_Don_Vi_Tinh!.Equals(entity.Ten_Don_Vi_Tinh));
-                if (getDonViTinh != null && !string.IsNullOrEmpty(getDonViTinh.Ten_Don_Vi_Tinh))
+                if (!string.Equals(donViTinh.Ten_Don_Vi_Tinh, entity.Ten_Don_Vi_Tinh, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new Response(false, $"{entity.Ten_Don_Vi_Tinh} already added");
+                    var getDonViTinh = await GetByAsync(_ => _.Ten_Don_Vi_Tinh!.Equals(entity.Ten_Don_Vi_Tinh));
+                    if (getDonViTinh != null && !string.IsNullOrEmpty(getDonViTinh.Ten_Don_Vi_Tinh))
+                    {
+                        return new Response(false, $"{entity.Ten_Don_Vi_Tinh} already added");
+                    }
                 }
 
                 context.Entry(donViTinh).State = EntityState.Detached;
                 context.DM_Don_Vi_Tinh.Update(entity);
-                await context.SaveChangesAsync();   
+                await context.SaveChangesAsync();
 
                 return new Response(true, $"{entity.Ten_Don_Vi_Tinh} is update successfully");
             }
