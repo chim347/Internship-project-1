@@ -1,0 +1,59 @@
+﻿@page "/sentence4/createData"
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.Application.DTOs.Conversions
+@using PracticeInternship.Application.Responses
+@inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Tạo mới nhà cung cấp</PageTitle>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <EditForm Enhance="true" FormName="CreateNCCForm" OnValidSubmit="CreateNCC" Model="dM_NCC">
+            <h3>Thêm mới</h3>
+            <div class="mb-3">
+                <label for="code" class="form-label">Mã nhà cung cấp</label>
+                <InputText id="code" @bind-Value="dM_NCC.Ma_NCC" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Tên nhà cung cấp</label>
+                <InputText id="name" @bind-Value="dM_NCC.Ten_NCC" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Ghi chú</label>
+                <InputText id="note" @bind-Value="dM_NCC.Ghi_Chu" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-primary shadow-none">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private DM_NCC dM_NCC { get; set; } = new DM_NCC();
+
+    private async Task CreateNCC()
+    {
+        try
+        {
+            var response = await NCCInterface.CreateAsync(dM_NCC);
+
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence4/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm mới thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

@@ -1,0 +1,67 @@
+﻿@page "/sentence4/editData/{id:int}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Chỉnh sửa nhà cung cấp</PageTitle>
+@if (dM_NCC != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditNCCForm" OnValidSubmit="EditNCC" Model="dM_NCC">
+                <h3>Chỉnh sửa</h3>
+                <input type="hidden" name="dM_NCC.Id" value="@dM_NCC.Id" />
+                <div class="mb-3">
+                    <label for="code" class="form-label">Mã nhà cung cấp</label>
+                    <InputText id="code" @bind-Value="dM_NCC.Ma_NCC" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Tên nhà cung cấp</label>
+                    <InputText id="name" @bind-Value="dM_NCC.Ten_NCC" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <InputText id="note" @bind-Value="dM_NCC.Ghi_Chu" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence4/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh mục nhà cung cấp</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_NCC? dM_NCC { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_NCC ??= await NCCInterface.GetByIdAsync(Id);
+    }
+
+    private async Task EditNCC()
+    {
+        try
+        {
+            var response = await NCCInterface.UpdateAsync(dM_NCC!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence4/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

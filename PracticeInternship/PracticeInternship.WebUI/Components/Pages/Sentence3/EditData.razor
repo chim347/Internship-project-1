@@ -1,5 +1,7 @@
 ﻿@page "/sentence3/editData/{id:int}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh DonViTinhInterface
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
 
@@ -24,12 +26,40 @@
                     <InputText id="note" @bind-Value="dM_San_Pham.Ghi_Chu" class="form-control"></InputText>
                 </div>
                 <div class="mb-3">
-                    <label for="note" class="form-label">Đơn vị tính</label>
-                    <InputNumber id="note" @bind-Value="dM_San_Pham.Don_Vi_Tinh_Id" class="form-control"></InputNumber>
+                    <label for="DonViTinhId" class="form-label">Đơn vị tính</label>
+                    <select id="DonViTinhId" class="form-select" @onchange="e => dM_San_Pham.Don_Vi_Tinh_Id = int.Parse(e.Value!.ToString()!)">
+                        @if (DonViTinhs == null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            @foreach (var item in DonViTinhs)
+                            {
+                                <option value="@item.Id" selected="@((dM_San_Pham.Don_Vi_Tinh_Id == item.Id).ToString())">
+                                    @item.Ten_Don_Vi_Tinh
+                                </option>
+                            }
+                        }
+                    </select>
                 </div>
                 <div class="mb-3">
-                    <label for="note" class="form-label">Loại sản phẩm</label>
-                    <InputNumber id="note" @bind-Value="dM_San_Pham.Loai_San_Pham_Id" class="form-control"></InputNumber>
+                    <label for="LoaiSanPhamId" class="form-label">Loại sản phẩm</label>
+                    <select id="LoaiSanPhamId" class="form-select" @onchange="e => dM_San_Pham.Loai_San_Pham_Id = int.Parse(e.Value!.ToString()!)">
+                        @if (LoaiSanPhams == null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            @foreach (var item in LoaiSanPhams)
+                            {
+                                <option value="@item.Id" selected="@((dM_San_Pham.Loai_San_Pham_Id == item.Id).ToString())">
+                                    @item.Ten_LSP
+                                </option>
+                            }
+                        }
+                    </select>
                 </div>
                 <div class="mb-3">
                     <button class="btn btn-primary shadow-none">Update</button>
@@ -41,6 +71,10 @@
 }
 
 @code {
+    // dropdown
+    public IEnumerable<DM_Don_Vi_Tinh>? DonViTinhs { get; set; }
+    public IEnumerable<DM_Loai_San_Pham>? LoaiSanPhams { get; set; }
+
     [Parameter]
     public int Id { get; set; }
 
@@ -50,6 +84,8 @@
     protected override async Task OnInitializedAsync()
     {
         dM_San_Pham ??= await SanPhamInterface.GetByIdAsync(Id);
+        DonViTinhs = await DonViTinhInterface.GetAllAsync();
+        LoaiSanPhams = await LoaiSanPhamInterface.GetAllAsync();
     }
 
     private async Task EditSanPham()

@@ -1,5 +1,7 @@
 ﻿@page "/sentence3/reading"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh DonViInterface
 @using PracticeInternship.Domain.Entities
 @using PracticeInternship.WebUI.Components.Pages.Sentence1
 @rendermode InteractiveServer
@@ -42,8 +44,12 @@ else
                     <td>@forecast.Ma_San_Pham</td>
                     <td>@forecast.Ten_San_Pham</td>
                     <td>@forecast.Ghi_Chu</td>
-                    <td>@forecast.Don_Vi_Tinh_Id</td>
-                    <td>@forecast.Loai_San_Pham_Id</td>
+                    <td>
+                        @donViTinhs!.FirstOrDefault(dvt => dvt.Id == forecast.Don_Vi_Tinh_Id)!.Ten_Don_Vi_Tinh
+                    </td>
+                    <td>
+                        @loaiSanPhams!.FirstOrDefault(lsp => lsp.Id == forecast.Loai_San_Pham_Id)!.Ten_LSP
+                    </td>
                     <td>
                         <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence3/editData/{forecast.Id}")">Edit</a>
                         <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
@@ -83,11 +89,15 @@ else
 
 
     public IEnumerable<DM_San_Pham>? sanPhams { get; set; }
+    public IEnumerable<DM_Don_Vi_Tinh>? donViTinhs { get; set; }
+    public IEnumerable<DM_Loai_San_Pham>? loaiSanPhams { get; set; }
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
 
         sanPhams = await SanPhamInterface.GetAllAsync();
+        donViTinhs = await DonViInterface.GetAllAsync();
+        loaiSanPhams = await LoaiSanPhamInterface.GetAllAsync();
     }
 }

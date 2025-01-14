@@ -94,7 +94,7 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var donViTinh = await context.DM_Don_Vi_Tinh.FindAsync(id);
+                var donViTinh = await context.DM_Don_Vi_Tinh.Where(dv => dv.Id == id).SingleOrDefaultAsync();
                 return donViTinh is not null ? donViTinh : null!;
             }
             catch (Exception ex)

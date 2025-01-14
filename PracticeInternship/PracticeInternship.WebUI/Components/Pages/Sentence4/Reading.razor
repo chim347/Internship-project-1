@@ -1,0 +1,89 @@
+﻿@page "/sentence4/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Sentence 4</PageTitle>
+
+<h1>Danh sách danh mục nhà cung cấp</h1>
+
+@if (nccs == null)
+{
+    <p><em>Loading...</em></p>
+    <div class="d-flex justify-content-end">
+        <a href="sentence4/createData" class="btn btn-primary">+ Thêm mới nhà cung cấp</a>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <a href="sentence4/createData" class="btn btn-primary">+ Thêm mới nhà cung cấp</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã nhà cung cấp</th>
+                <th>Tên nhà cung cấp</th>
+                <th>Ghi chú</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in nccs)
+            {
+                <tr>
+                    <td>@forecast.Ma_NCC</td>
+                    <td>@forecast.Ten_NCC</td>
+                    <td>@forecast.Ghi_Chu</td>
+                    <td>
+                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence4/editData/{forecast.Id}")">Edit</a>
+                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<DeleteConfirmDialog Show="ShowDialog" OnCancel="CancelDelete" OnDelete="DeleteNCC" />
+
+
+@code {
+    // dialog
+    [Parameter]
+    public required DM_NCC? dM_NCC { get; set; }
+    [Parameter]
+    public bool ShowDialog { get; set; }
+    public void DeleteDialog(DM_NCC ncc)
+    {
+        dM_NCC = ncc;
+        ShowDialog = true;
+    }
+    public void CancelDelete()
+    {
+        dM_NCC = null;
+        ShowDialog = false;
+    }
+    public async void DeleteNCC()
+    {
+        await NCCInterface.DeleteAsync(dM_NCC!);
+        ShowDialog = false;
+        nccs = await NCCInterface.GetAllAsync();
+        StateHasChanged();
+    }
+
+
+    public IEnumerable<DM_NCC>? nccs { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        nccs = await NCCInterface.GetAllAsync();
+    }
+}
