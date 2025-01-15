@@ -1,0 +1,107 @@
+﻿@page "/sentence8/editData/{id:Guid}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho NhapKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Hiệu chỉnh header của phiếu nhập kho</PageTitle>
+@if (dM_Nhap_Kho != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditNhapKhoForm" OnValidSubmit="EditNhapKho" Model="dM_Nhap_Kho">
+                <h3>Phần header của phiếu nhập kho</h3>
+                <input type="hidden" name="dM_Nhap_Kho.Id" value="@dM_Nhap_Kho.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Số phiếu nhập kho</label>
+                    <InputText id="name" @bind-Value="dM_Nhap_Kho.So_Phieu_Nhap_Kho" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="KhoId" class="form-label">Tên kho</label>
+                    <select id="KhoId" class="form-select" @onchange="e => dM_Nhap_Kho.Kho_Id = Guid.Parse(e.Value!.ToString()!)">
+                        <option value="0">Danh mục kho</option>
+                        @if (khos == null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            @foreach (var item in khos)
+                            {
+                                <option value="@item.Id">@item.Ten_Kho</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="NCCId" class="form-label">Nhà cung cấp</label>
+                    <select id="NCCId" class="form-select" @onchange="e => dM_Nhap_Kho.NCC_Id = Guid.Parse(e.Value!.ToString()!)">
+                        <option value="0">Danh mục kho</option>
+                        @if (nccs == null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            @foreach (var item in nccs)
+                            {
+                                <option value="@item.Id">@item.Ten_NCC</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Ngày nhập kho</label>
+                    <InputDate id="name" @bind-Value="dM_Nhap_Kho.Ngay_Nhap_kho" class="form-control"></InputDate>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Ghi chú</label>
+                    <InputTextArea id="name" @bind-Value="dM_Nhap_Kho.Ghi_Chu" class="form-control"></InputTextArea>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence8/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh hiệu chỉnh</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Nhap_Kho? dM_Nhap_Kho { get; set; }
+    public IEnumerable<DM_Kho>? khos { get; set; }
+    public IEnumerable<DM_NCC>? nccs { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Nhap_Kho ??= await NhapKhoInterface.GetByIdAsync(Guid.Parse(Id!));
+        khos = await KhoInterface.GetAllAsync();
+        nccs = await NCCInterface.GetAllAsync();
+    }
+
+    private async Task EditNhapKho()
+    {
+        try
+        {
+            var response = await NhapKhoInterface.UpdateAsync(dM_Nhap_Kho!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence8/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

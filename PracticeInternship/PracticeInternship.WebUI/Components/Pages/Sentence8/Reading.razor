@@ -1,7 +1,8 @@
-﻿@page "/sentence7/reading"
+﻿@page "/sentence8/reading"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho NhapKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_XNK_Nhap_Kho XNKNhapKhoInterface
 @using PracticeInternship.Domain.Entities
 @using PracticeInternship.WebUI.Components.Pages.Sentence1
 @rendermode InteractiveServer
@@ -9,23 +10,16 @@
 @inject NavigationManager NavigationManager
 
 
-<PageTitle>Sentence 7</PageTitle>
+<PageTitle>Sentence 8</PageTitle>
 
-<h1>Quản lí phiếu nhập</h1>
+<h1>Hiệu chỉnh phiếu nhập</h1>
 
 @if (nhapKhos == null)
 {
     <p><em>Loading...</em></p>
-    <div class="d-flex justify-content-end">
-        <a href="sentence7/createData" class="btn btn-primary">+ Tạo mới phiếu nhập</a>
-    </div>
 }
 else
 {
-    <div class="d-flex justify-content-end">
-        <a href="sentence7/createData" class="btn btn-primary">+ Tạo mới phiếu nhập</a>
-    </div>
-
     <table class="table">
         <thead>
             <tr>
@@ -49,7 +43,14 @@ else
                     </td>
                     <td>@forecast.Ngay_Nhap_kho.ToString("dd/MM/yyyy hh:mm:ss")</td>
                     <td>
-                        <button class="bg-danger btn rounded-1 shadow-none" @onclick="() => DeleteDialog(forecast)" ms-3>Delete</button>
+                        @if (xnkNhapKhos!.FirstOrDefault(xnk => xnk.Nhap_Kho_Id == forecast.Id) != null)
+                        {
+                            <span class="text-muted">Đã được xử lý</span>
+                        }
+                        else
+                        {
+                            <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence8/editData/{forecast.Id}")">Edit</a>
+                        }
                     </td>
 
                 </tr>
@@ -57,37 +58,15 @@ else
         </tbody>
     </table>
 }
-<DeleteConfirmDialog Show="ShowDialog" OnCancel="CancelDelete" OnDelete="DeleteKho" />
 
 
 @code {
-    // dialog
-    [Parameter]
-    public required DM_Nhap_Kho? dM_Nhap_Kho { get; set; }
-    [Parameter]
-    public bool ShowDialog { get; set; }
-    public void DeleteDialog(DM_Nhap_Kho dmNhapKho)
-    {
-        dM_Nhap_Kho = dmNhapKho;
-        ShowDialog = true;
-    }
-    public void CancelDelete()
-    {
-        dM_Nhap_Kho = null;
-        ShowDialog = false;
-    }
-    public async void DeleteKho()
-    {
-        await NhapKhoInterface.DeleteAsync(dM_Nhap_Kho!);
-        ShowDialog = false;
-        nhapKhos = await NhapKhoInterface.GetAllAsync();
-        StateHasChanged();
-    }
-
+    // find id of table xnk_nhap_kho, if id exist, disable button edit
 
     public IEnumerable<DM_Kho>? khos { get; set; }
     public IEnumerable<DM_NCC>? nccs { get; set; }
     public IEnumerable<DM_Nhap_Kho>? nhapKhos { get; set; }
+    public IEnumerable<XNK_Nhap_Kho>? xnkNhapKhos { get; set; }
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
@@ -96,5 +75,6 @@ else
         nccs = await NCCInterface.GetAllAsync();
         khos = await KhoInterface.GetAllAsync();
         nhapKhos = await NhapKhoInterface.GetAllAsync();
+        xnkNhapKhos = await XNKNhapKhoInterface.GetAllAsync();
     }
 }

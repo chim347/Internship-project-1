@@ -26,5 +26,6 @@ namespace PracticeInternship.Domain.Entities
         public virtual IList<DM_Nhap_Kho_Raw_Data> DM_Nhap_Kho_Raw_Data { get; set; } = null!;
         public virtual DM_Kho DM_Kho { get; set; } = null!;
         public virtual DM_NCC DM_NCC { get; set; } = null!;
+        public virtual XNK_Nhap_Kho XNK_Nhap_Kho { get; set; } = null!;
     }
 }

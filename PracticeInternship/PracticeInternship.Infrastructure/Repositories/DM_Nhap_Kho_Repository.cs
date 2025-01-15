@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PracticeInternship.Application.DTOs;
 using PracticeInternship.Application.Interfaces;
 using PracticeInternship.Application.Responses;
@@ -118,6 +119,57 @@ namespace PracticeInternship.Infrastructure.Repositories
             catch (Exception ex)
             {
                 throw new Exception($"Error occurred retrieving DM_Nhap_Kho, {ex.Message}");
+            }
+        }
+
+        public async Task<Response> UpdateAsync(DM_Nhap_Kho entity)
+        {
+            try
+            {
+                var nhapKho = await context.DM_Nhap_Kho.Where(nk => nk.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
+                if (nhapKho == null)
+                {
+                    return new Response(false, $"{entity.So_Phieu_Nhap_Kho} not found");
+                }
+
+                // Detach entity hiện tại nếu nó đang được tracking
+                context.Entry(nhapKho).State = EntityState.Detached;
+
+                // check null
+                if (string.IsNullOrEmpty(entity.So_Phieu_Nhap_Kho))
+                    return new Response(false, "Số phiếu nhập không được rỗng.");
+                if (string.IsNullOrEmpty(entity.Kho_Id.ToString()))
+                    return new Response(false, "Kho không được rỗng.");
+                if (string.IsNullOrEmpty(entity.NCC_Id.ToString()))
+                    return new Response(false, "Nhà cung cấp không được rỗng.");
+                if (entity.Ngay_Nhap_kho == default)
+                    return new Response(false, "Ngày nhập kho không được rỗng.");
+
+                // check So_Phieu_Nhap_Kho is already exist
+                if (!string.Equals(nhapKho.So_Phieu_Nhap_Kho, entity.So_Phieu_Nhap_Kho, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (await context.DM_Nhap_Kho.AnyAsync(x => x.So_Phieu_Nhap_Kho == entity.So_Phieu_Nhap_Kho))
+                        return new Response(false, "Số phiếu nhập đã tồn tại.");
+                }
+
+                var xnk = new XNK_Nhap_Kho
+                {
+                    Nhap_Kho_Id = entity.Id,
+                    So_Phieu_Nhap_Kho = entity.So_Phieu_Nhap_Kho,
+                    NCC_Id = entity.NCC_Id,
+                    Kho_Id = entity.Kho_Id,
+                    Ngay_Nhap_kho = entity.Ngay_Nhap_kho,
+                    Ghi_Chu = entity.Ghi_Chu,
+                };
+
+                context.XNK_Nhap_Kho.Add(xnk);
+                await context.SaveChangesAsync();
+
+                return new Response(true, $"{entity.So_Phieu_Nhap_Kho} is update successfully");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error occurred updating existing DM_San_Pham, {ex.Message}");
             }
         }
     }

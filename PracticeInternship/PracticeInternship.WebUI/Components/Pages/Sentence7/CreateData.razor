@@ -6,6 +6,7 @@
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho NhapKhoInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
 
@@ -69,8 +70,21 @@
                     <div class="card-body">
                         <h5 class="card-title">Thông tin sản phẩm</h5>
                         <div class="mb-3">
-                            <label for="SanPhamId" class="form-label">Sản phẩm ID</label>
-                            <InputText id="SanPhamId" @bind-Value="product.San_Pham_Id" class="form-control" />
+                            <label for="SanPhamId" class="form-label">Sản phẩm</label>
+                            <select id="SanPhamId" class="form-select" @onchange="e => product.San_Pham_Id = e.Value!.ToString()!">
+                                <option value="0">Danh mục sản phẩm</option>
+                                @if (sanPhams == null)
+                                {
+                                    <p><em>Loading...</em></p>
+                                }
+                                else
+                                {
+                                    @foreach (var item in sanPhams)
+                                    {
+                                        <option value="@item.Id">@item.Ten_San_Pham</option>
+                                    }
+                                }
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="SLNhap" class="form-label">Số lượng nhập</label>
@@ -106,10 +120,12 @@
 
     public IEnumerable<DM_Kho>? khos { get; set; }
     public IEnumerable<DM_NCC>? nccs { get; set; }
+    public IEnumerable<DM_San_Pham>? sanPhams { get; set; }
     protected override async Task OnInitializedAsync()
     {
         khos = await KhoInterface.GetAllAsync();
         nccs = await NCCInterface.GetAllAsync();
+        sanPhams = await SanPhamInterface.GetAllAsync();
     }
 
     [SupplyParameterFromForm]
