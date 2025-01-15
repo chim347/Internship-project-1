@@ -34,7 +34,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var currentEntity = context.DM_NCC.Add(entity).Entity;
                 await context.SaveChangesAsync();
 
-                if (currentEntity != null && currentEntity.Id > 0)
+                if (currentEntity != null)
                 {
                     return new Response(true, $"{entity.Ten_NCC} added to database successfully");
                 }
@@ -96,11 +96,11 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
-        public async Task<DM_NCC> GetByIdAsync(int id)
+        public async Task<DM_NCC> GetByIdAsync(Guid id)
         {
             try
             {
-                var ncc = await context.DM_NCC.FindAsync(id);
+                var ncc = await context.DM_NCC.Where(ncc => ncc.Id == id).SingleOrDefaultAsync();
                 return ncc is not null ? ncc : null!;
             }
             catch (Exception ex)
@@ -113,11 +113,13 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var ncc = await GetByIdAsync(entity.Id);
+                var ncc = await context.DM_NCC.Where(ncc => ncc.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
                 if (ncc == null)
                 {
                     return new Response(false, $"{entity.Ten_NCC} not found");
                 }
+                
+                context.Entry(ncc).State = EntityState.Detached;
 
                 // check null
                 if (string.IsNullOrEmpty(entity.Ten_NCC) || string.IsNullOrEmpty(entity.Ma_NCC))
@@ -126,22 +128,23 @@ namespace PracticeInternship.Infrastructure.Repositories
                 }
 
                 // check Ten_Loai_San_Pham va Ma_LSP is already exist
-                if (!string.Equals(ncc.Ten_NCC, entity.Ten_NCC, StringComparison.OrdinalIgnoreCase) ||
-                    !string.Equals(ncc.Ma_NCC, entity.Ma_NCC, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(ncc.Ma_NCC, entity.Ma_NCC, StringComparison.OrdinalIgnoreCase))
                 {
-                    var getTenNCC = await GetByAsync(_ => _.Ten_NCC!.Equals(entity.Ten_NCC));
-                    if (getTenNCC != null && !string.IsNullOrEmpty(getTenNCC.Ten_NCC))
-                    {
-                        return new Response(false, $"{entity.Ten_NCC} already added");
-                    }
                     var getMaNCC = await GetByAsync(_ => _.Ma_NCC!.Equals(entity.Ma_NCC));
                     if (getMaNCC != null && !string.IsNullOrEmpty(getMaNCC.Ma_NCC))
                     {
                         return new Response(false, $"{entity.Ma_NCC} already added");
                     }
                 }
+                if(!string.Equals(ncc.Ten_NCC, entity.Ten_NCC, StringComparison.OrdinalIgnoreCase))
+                {
+                    var getTenNCC = await GetByAsync(_ => _.Ten_NCC!.Equals(entity.Ten_NCC));
+                    if (getTenNCC != null && !string.IsNullOrEmpty(getTenNCC.Ten_NCC))
+                    {
+                        return new Response(false, $"{entity.Ten_NCC} already added");
+                    }
+                }
 
-                context.Entry(ncc).State = EntityState.Detached;
                 context.DM_NCC.Update(entity);
                 await context.SaveChangesAsync();
 

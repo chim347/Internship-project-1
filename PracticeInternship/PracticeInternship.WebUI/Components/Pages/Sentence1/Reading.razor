@@ -71,7 +71,7 @@ else
     }
     public async void DeleteDonViTinh()
     {
-        await DonViTinhInterface.DeleteAsync(dM_Don_Vi_Tinh);
+        await DonViTinhInterface.DeleteAsync(dM_Don_Vi_Tinh!);
         ShowDialog = false;
         DonViTinhs = await DonViTinhInterface.GetAllAsync();
         StateHasChanged();

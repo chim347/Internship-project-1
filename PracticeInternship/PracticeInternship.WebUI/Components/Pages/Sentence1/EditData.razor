@@ -1,6 +1,7 @@
-﻿@page "/sentence1/editData/{id:int}"
+﻿@page "/sentence1/editData/{id:Guid}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh donViTinhInterface
 @inject NavigationManager NavigationManager
+@inject IToastService ToastService
 
 <PageTitle>Chỉnh sửa đơn vị tính</PageTitle>
 @if (dM_Don_Vi_Tinh != null)
@@ -9,7 +10,7 @@
         <div class="col-6">
             <EditForm Enhance="true" FormName="EditDonViTinhForm" OnValidSubmit="EditDonViTinh" Model="dM_Don_Vi_Tinh">
                 <h3>Chỉnh sửa</h3>
-                <input type="hidden" name="dM_Don_Vi_Tinh.Id" value="@dM_Don_Vi_Tinh.Id"/>
+                <input type="hidden" name="dM_Don_Vi_Tinh.Id" value="@dM_Don_Vi_Tinh.Id" />
                 <div class="mb-3">
                     <label for="name" class="form-label">Tên đơn vị tính</label>
                     <InputText id="name" @bind-Value="dM_Don_Vi_Tinh.Ten_Don_Vi_Tinh" class="form-control"></InputText>
@@ -29,19 +30,34 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     [SupplyParameterFromForm]
     public DM_Don_Vi_Tinh? dM_Don_Vi_Tinh { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        dM_Don_Vi_Tinh ??= await donViTinhInterface.GetByIdAsync(Id);
+        dM_Don_Vi_Tinh ??= await donViTinhInterface.GetByIdAsync(Guid.Parse(Id!));
     }
 
     private async Task EditDonViTinh()
     {
-        await donViTinhInterface.UpdateAsync(dM_Don_Vi_Tinh);
-        NavigationManager.NavigateTo("/sentence1/reading");
+        try
+        {
+            var response = await donViTinhInterface.UpdateAsync(dM_Don_Vi_Tinh!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence1/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/sentence3/editData/{id:int}"
+﻿@page "/sentence3/editData/{id:Guid}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh DonViTinhInterface
@@ -27,7 +27,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="DonViTinhId" class="form-label">Đơn vị tính</label>
-                    <select id="DonViTinhId" class="form-select" @onchange="e => dM_San_Pham.Don_Vi_Tinh_Id = int.Parse(e.Value!.ToString()!)">
+                    <select id="DonViTinhId" class="form-select" @onchange="e => dM_San_Pham.Don_Vi_Tinh_Id = Guid.Parse(e.Value!.ToString()!)">
                         @if (DonViTinhs == null)
                         {
                             <p><em>Loading...</em></p>
@@ -45,7 +45,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="LoaiSanPhamId" class="form-label">Loại sản phẩm</label>
-                    <select id="LoaiSanPhamId" class="form-select" @onchange="e => dM_San_Pham.Loai_San_Pham_Id = int.Parse(e.Value!.ToString()!)">
+                    <select id="LoaiSanPhamId" class="form-select" @onchange="e => dM_San_Pham.Loai_San_Pham_Id = Guid.Parse(e.Value!.ToString()!)">
                         @if (LoaiSanPhams == null)
                         {
                             <p><em>Loading...</em></p>
@@ -76,14 +76,14 @@
     public IEnumerable<DM_Loai_San_Pham>? LoaiSanPhams { get; set; }
 
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     [SupplyParameterFromForm]
     public DM_San_Pham? dM_San_Pham { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        dM_San_Pham ??= await SanPhamInterface.GetByIdAsync(Id);
+        dM_San_Pham ??= await SanPhamInterface.GetByIdAsync(Guid.Parse(Id!));
         DonViTinhs = await DonViTinhInterface.GetAllAsync();
         LoaiSanPhams = await LoaiSanPhamInterface.GetAllAsync();
     }

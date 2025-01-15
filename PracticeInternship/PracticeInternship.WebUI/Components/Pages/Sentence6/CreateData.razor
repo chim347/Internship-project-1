@@ -19,7 +19,7 @@
             </div>
             <div class="mb-3">
                 <label for="KhoId" class="form-label">Tên kho</label>
-                <select id="KhoId" class="form-select" @onchange="e => dM_Kho_User.Kho_Id = int.Parse(e.Value!.ToString()!)">
+                <select id="KhoId" class="form-select" @onchange="e => dM_Kho_User.Kho_Id = Guid.Parse(e.Value!.ToString()!)">
                     <option value="0">Danh mục kho</option>
                     @if (khos == null)
                     {

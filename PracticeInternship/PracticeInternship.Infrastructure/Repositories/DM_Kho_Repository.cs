@@ -30,7 +30,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var currentEntity = context.DM_Kho.Add(entity).Entity;
                 await context.SaveChangesAsync();
 
-                if (currentEntity != null && currentEntity.Id > 0)
+                if (currentEntity != null)
                 {
                     return new Response(true, $"{entity.Ten_Kho} added to database successfully");
                 }
@@ -92,11 +92,11 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
-        public async Task<DM_Kho> GetByIdAsync(int id)
+        public async Task<DM_Kho> GetByIdAsync(Guid id)
         {
             try
             {
-                var kho = await context.DM_Kho.FindAsync(id);
+                var kho = await context.DM_Kho.Where(kho => kho.Id == id).SingleOrDefaultAsync();
                 return kho is not null ? kho : null!;
             }
             catch (Exception ex)
@@ -109,11 +109,13 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var kho = await GetByIdAsync(entity.Id);
+                var kho = await context.DM_Kho.Where(kho => kho.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
                 if (kho == null)
                 {
                     return new Response(false, $"{entity.Ten_Kho} not found");
                 }
+
+                context.Entry(kho).State = EntityState.Detached;
 
                 // check null
                 if (string.IsNullOrEmpty(entity.Ten_Kho))
@@ -131,7 +133,6 @@ namespace PracticeInternship.Infrastructure.Repositories
                     }
                 }
 
-                context.Entry(kho).State = EntityState.Detached;
                 context.DM_Kho.Update(entity);
                 await context.SaveChangesAsync();
 

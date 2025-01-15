@@ -35,7 +35,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var currentEntity = context.DM_Loai_San_Pham.Add(entity).Entity;
                 await context.SaveChangesAsync();
 
-                if (currentEntity != null && currentEntity.Id > 0)
+                if (currentEntity != null)
                 {
                     return new Response(true, $"{entity.Ten_LSP} added to database successfully");
                 }
@@ -97,11 +97,11 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
-        public async Task<DM_Loai_San_Pham> GetByIdAsync(int id)
+        public async Task<DM_Loai_San_Pham> GetByIdAsync(Guid id)
         {
             try
             {
-                var loaiSanPham = await context.DM_Loai_San_Pham.FindAsync(id);
+                var loaiSanPham = await context.DM_Loai_San_Pham.Where(lsp => lsp.Id == id).SingleOrDefaultAsync();
                 return loaiSanPham is not null ? loaiSanPham : null!;
             }
             catch (Exception ex)
@@ -114,11 +114,13 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var loaiSanPham = await GetByIdAsync(entity.Id);
+                var loaiSanPham = await context.DM_Loai_San_Pham.Where(lsp => lsp.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
                 if (loaiSanPham == null)
                 {
                     return new Response(false, $"{entity.Ten_LSP} not found");
                 }
+
+                context.Entry(loaiSanPham).State = EntityState.Detached;
 
                 // check null
                 if (string.IsNullOrEmpty(entity.Ten_LSP) || string.IsNullOrEmpty(entity.Ma_LSP))
@@ -127,22 +129,23 @@ namespace PracticeInternship.Infrastructure.Repositories
                 }
 
                 // check Ten_Loai_San_Pham va Ma_LSP is already exist
-                if (!string.Equals(loaiSanPham.Ten_LSP, entity.Ten_LSP, StringComparison.OrdinalIgnoreCase) ||
-                    !string.Equals(loaiSanPham.Ma_LSP, entity.Ma_LSP, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(loaiSanPham.Ma_LSP, entity.Ma_LSP, StringComparison.OrdinalIgnoreCase))
                 {
-                    var getTenLSP = await GetByAsync(_ => _.Ten_LSP!.Equals(entity.Ten_LSP));
-                    if (getTenLSP != null && !string.IsNullOrEmpty(getTenLSP.Ten_LSP))
-                    {
-                        return new Response(false, $"{entity.Ten_LSP} already added");
-                    }
                     var getMaLSP = await GetByAsync(_ => _.Ma_LSP!.Equals(entity.Ma_LSP));
                     if (getMaLSP != null && !string.IsNullOrEmpty(getMaLSP.Ma_LSP))
                     {
                         return new Response(false, $"{entity.Ma_LSP} already added");
                     }
                 }
+                if(!string.Equals(loaiSanPham.Ten_LSP, entity.Ten_LSP, StringComparison.OrdinalIgnoreCase))
+                {
+                    var getTenLSP = await GetByAsync(_ => _.Ten_LSP!.Equals(entity.Ten_LSP));
+                    if (getTenLSP != null && !string.IsNullOrEmpty(getTenLSP.Ten_LSP))
+                    {
+                        return new Response(false, $"{entity.Ten_LSP} already added");
+                    }
+                }
 
-                context.Entry(loaiSanPham).State = EntityState.Detached;
                 context.DM_Loai_San_Pham.Update(entity);
                 await context.SaveChangesAsync();
 

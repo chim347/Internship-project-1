@@ -12,7 +12,6 @@ namespace PracticeInternship.Application.DTOs.Conversions
         public static DM_Don_Vi_Tinh ToEntity(DM_Don_Vi_Tinh_DTO don_Vi_Tinh) => new
             DM_Don_Vi_Tinh
         {
-            Id = don_Vi_Tinh.Id,
             Ten_Don_Vi_Tinh = don_Vi_Tinh.Ten_Don_Vi_Tinh,
             Ghi_Chu = don_Vi_Tinh.Ghi_Chu
         };
@@ -26,7 +25,6 @@ namespace PracticeInternship.Application.DTOs.Conversions
             {
                 var single_Don_Vi_Tinh = new DM_Don_Vi_Tinh_DTO
                 {
-                    Id = don_Vi_Tinh!.Id,
                     Ten_Don_Vi_Tinh = don_Vi_Tinh.Ten_Don_Vi_Tinh!,
                     Ghi_Chu = don_Vi_Tinh.Ghi_Chu
                 };
@@ -38,7 +36,6 @@ namespace PracticeInternship.Application.DTOs.Conversions
             {
                 var _don_Vi_Tinhs = dM_Don_Vi_Tinhs.Select(d => new DM_Don_Vi_Tinh_DTO
                 {
-                    Id = d.Id,
                     Ten_Don_Vi_Tinh = d.Ten_Don_Vi_Tinh!,
                     Ghi_Chu = d.Ghi_Chu
                 }).ToList();

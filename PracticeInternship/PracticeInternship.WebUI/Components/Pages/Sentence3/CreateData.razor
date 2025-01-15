@@ -28,7 +28,7 @@
             </div>
             <div class="mb-3">
                 <label for="DonViTinhId" class="form-label">Đơn vị tính</label>
-                <select id="DonViTinhId" class="form-select" @onchange="e => dM_San_Pham.Don_Vi_Tinh_Id = int.Parse(e.Value!.ToString()!)">
+                <select id="DonViTinhId" class="form-select" @onchange="e => dM_San_Pham.Don_Vi_Tinh_Id = Guid.Parse(e.Value!.ToString()!)">
                     <option value="0">Danh mục đơn vị tính</option>
                     @if (DonViTinhs == null)
                     {
@@ -46,7 +46,7 @@
             </div>
             <div class="mb-3">
                 <label for="LoaiSanPhamId" class="form-label">Loại sản phẩm</label>
-                <select id="LoaiSanPhamId" class="form-select" @onchange="e => dM_San_Pham.Loai_San_Pham_Id = int.Parse(e.Value!.ToString()!)">
+                <select id="LoaiSanPhamId" class="form-select" @onchange="e => dM_San_Pham.Loai_San_Pham_Id = Guid.Parse(e.Value!.ToString()!)">
                     <option value="0">Danh mục loại sản phẩm</option>
                     @if (LoaiSanPhams == null)
                     {

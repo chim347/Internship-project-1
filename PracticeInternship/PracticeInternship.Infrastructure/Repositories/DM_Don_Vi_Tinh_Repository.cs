@@ -28,7 +28,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var currentEntity = context.DM_Don_Vi_Tinh.Add(entity).Entity;
                 await context.SaveChangesAsync();
 
-                if (currentEntity != null && currentEntity.Id > 0)
+                if (currentEntity != null)
                 {
                     return new Response(true, $"{entity.Ten_Don_Vi_Tinh} added to database successfully");
                 }
@@ -90,7 +90,7 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
-        public async Task<DM_Don_Vi_Tinh> GetByIdAsync(int id)
+        public async Task<DM_Don_Vi_Tinh> GetByIdAsync(Guid id)
         {
             try
             {
@@ -107,11 +107,13 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var donViTinh = await GetByIdAsync(entity.Id);
+                var donViTinh = await context.DM_Don_Vi_Tinh.Where(dv => dv.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
                 if (donViTinh == null)
                 {
                     return new Response(false, $"{entity.Ten_Don_Vi_Tinh} not found");
                 }
+
+                context.Entry(donViTinh).State = EntityState.Detached;
 
                 // check Ten_Don_Vi_Tinh is already exist
                 if (!string.Equals(donViTinh.Ten_Don_Vi_Tinh, entity.Ten_Don_Vi_Tinh, StringComparison.OrdinalIgnoreCase))
@@ -123,7 +125,6 @@ namespace PracticeInternship.Infrastructure.Repositories
                     }
                 }
 
-                context.Entry(donViTinh).State = EntityState.Detached;
                 context.DM_Don_Vi_Tinh.Update(entity);
                 await context.SaveChangesAsync();
 

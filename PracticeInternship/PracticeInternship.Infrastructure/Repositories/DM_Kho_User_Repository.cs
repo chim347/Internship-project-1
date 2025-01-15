@@ -23,10 +23,6 @@ namespace PracticeInternship.Infrastructure.Repositories
                 {
                     return new Response(false, $"Ma_Dang_Nhap of warehouse is not Empty!!");
                 }
-                if (entity.Kho_Id == 0)
-                {
-                    return new Response(false, $"Kho_Id of warehouse is not null!!");
-                }
                 var getKhoUserExists = await GetByAsync(_ => _.Ma_Dang_Nhap!.Equals(entity.Ma_Dang_Nhap) &&
                                                     _.Kho_Id.Equals(entity.Kho_Id));
 
@@ -38,7 +34,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var currentEntity = context.DM_Kho_User.Add(entity).Entity;
                 await context.SaveChangesAsync();
 
-                if (currentEntity != null && currentEntity.Id > 0)
+                if (currentEntity != null)
                 {
                     return new Response(true, $"{entity.Ma_Dang_Nhap} add authenticated to database successfully");
                 }
@@ -100,11 +96,11 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
-        public async Task<DM_Kho_User> GetByIdAsync(int id)
+        public async Task<DM_Kho_User> GetByIdAsync(Guid id)
         {
             try
             {
-                var khoUser = await context.DM_Kho_User.FindAsync(id);
+                var khoUser = await context.DM_Kho_User.Where(khoUser => khoUser.Id == id).SingleOrDefaultAsync();
                 return khoUser is not null ? khoUser : null!;
             }
             catch (Exception ex)

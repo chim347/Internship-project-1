@@ -1,4 +1,4 @@
-﻿@page "/sentence2/editData/{id:int}"
+﻿@page "/sentence2/editData/{id:Guid}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
@@ -34,14 +34,14 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     [SupplyParameterFromForm]
     public DM_Loai_San_Pham? dM_Loai_San_Pham { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        dM_Loai_San_Pham ??= await LoaiSanPhamInterface.GetByIdAsync(Id);
+        dM_Loai_San_Pham ??= await LoaiSanPhamInterface.GetByIdAsync(Guid.Parse(Id!));
     }
 
     private async Task EditLoaiSanPham()

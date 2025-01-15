@@ -1,4 +1,4 @@
-﻿@page "/sentence5/editData/{id:int}"
+﻿@page "/sentence5/editData/{id:Guid}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
@@ -30,14 +30,14 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     [SupplyParameterFromForm]
     public DM_Kho? dM_Kho { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        dM_Kho ??= await KhoInterface.GetByIdAsync(Id);
+        dM_Kho ??= await KhoInterface.GetByIdAsync(Guid.Parse(Id!));
     }
 
     private async Task EditKho()

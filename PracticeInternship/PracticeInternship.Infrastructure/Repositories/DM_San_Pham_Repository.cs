@@ -13,17 +13,20 @@ using System.Threading.Tasks;
 
 namespace PracticeInternship.Infrastructure.Repositories
 {
-    public class DM_San_Pham_Repository(PracticeInternshipDbContext context) : Interface_DM_San_Pham
+    public class DM_San_Pham_Repository : Interface_DM_San_Pham
     {
+        private readonly PracticeInternshipDbContext context;
+
+        public DM_San_Pham_Repository(PracticeInternshipDbContext context)
+        {
+            this.context = context;
+        }
+
         public async Task<Response> CreateAsync(DM_San_Pham entity)
         {
             try
             {
                 // check null
-                if (entity.Don_Vi_Tinh_Id == 0 || entity.Loai_San_Pham_Id == 0)
-                {
-                    return new Response(false, $"Don_Vi_Tinh_Id or Loai_San_Pham_Id of product is not null!!");
-                }
                 if (string.IsNullOrEmpty(entity.Ten_San_Pham) || string.IsNullOrEmpty(entity.Ma_San_Pham))
                 {
                     return new Response(false, $"Name or Code of product is not Empty!!");
@@ -39,7 +42,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var currentEntity = context.DM_San_Pham.Add(entity).Entity;
                 await context.SaveChangesAsync();
 
-                if (currentEntity != null && currentEntity.Id > 0)
+                if (currentEntity != null)
                 {
                     return new Response(true, $"{entity.Ten_San_Pham} added to database successfully");
                 }
@@ -101,11 +104,11 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
-        public async Task<DM_San_Pham> GetByIdAsync(int id)
+        public async Task<DM_San_Pham> GetByIdAsync(Guid id)
         {
             try
             {
-                var sanPham = await context.DM_San_Pham.FindAsync(id);
+                var sanPham = await context.DM_San_Pham.Where(sp => sp.Id == id).SingleOrDefaultAsync();
                 return sanPham is not null ? sanPham : null!;
             }
             catch (Exception ex)
@@ -118,17 +121,16 @@ namespace PracticeInternship.Infrastructure.Repositories
         {
             try
             {
-                var sanPham = await GetByIdAsync(entity.Id);
+                var sanPham = await context.DM_San_Pham.Where(sp => sp.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
                 if (sanPham == null)
                 {
                     return new Response(false, $"{entity.Ten_San_Pham} not found");
                 }
 
+                // Detach entity hiện tại nếu nó đang được tracking
+                context.Entry(sanPham).State = EntityState.Detached;
+
                 // check null
-                if (entity.Don_Vi_Tinh_Id == 0 || entity.Loai_San_Pham_Id == 0)
-                {
-                    return new Response(false, $"Don_Vi_Tinh_Id or Loai_San_Pham_Id of product is not null!!");
-                }
                 if (string.IsNullOrEmpty(entity.Ten_San_Pham) || string.IsNullOrEmpty(entity.Ma_San_Pham))
                 {
                     return new Response(false, $"Name or Code of product is not Empty!!");
@@ -144,7 +146,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                     }
                 }
 
-                context.Entry(sanPham).State = EntityState.Detached;
+                //context.Entry(sanPham).State = EntityState.Modified;
                 context.DM_San_Pham.Update(entity);
                 await context.SaveChangesAsync();
 

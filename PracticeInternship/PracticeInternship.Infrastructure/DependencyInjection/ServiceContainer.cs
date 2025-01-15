@@ -24,6 +24,7 @@ namespace PracticeInternship.Infrastructure.DependencyInjection
             services.AddScoped<Interface_DM_NCC, DM_NCC_Repository>();
             services.AddScoped<Interface_DM_Kho, DM_Kho_Repository>();
             services.AddScoped<Interface_DM_Kho_User, DM_Kho_User_Repository>();
+            services.AddScoped<Interface_DM_Nhap_Kho, DM_Nhap_Kho_Repository>();
 
             return services;
         }

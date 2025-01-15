@@ -1,4 +1,4 @@
-﻿@page "/sentence4/editData/{id:int}"
+﻿@page "/sentence4/editData/{id:Guid}"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
@@ -34,14 +34,14 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public string? Id { get; set; }
 
     [SupplyParameterFromForm]
     public DM_NCC? dM_NCC { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        dM_NCC ??= await NCCInterface.GetByIdAsync(Id);
+        dM_NCC ??= await NCCInterface.GetByIdAsync(Guid.Parse(Id!));
     }
 
     private async Task EditNCC()
