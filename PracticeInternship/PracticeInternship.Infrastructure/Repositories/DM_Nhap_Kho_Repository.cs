@@ -5,6 +5,7 @@ using PracticeInternship.Application.Interfaces;
 using PracticeInternship.Application.Responses;
 using PracticeInternship.Domain.Entities;
 using PracticeInternship.Infrastructure.Data;
+using System.Collections;
 
 namespace PracticeInternship.Infrastructure.Repositories
 {
@@ -120,6 +121,49 @@ namespace PracticeInternship.Infrastructure.Repositories
             {
                 throw new Exception($"Error occurred retrieving DM_Nhap_Kho, {ex.Message}");
             }
+        }
+
+        public async Task<DM_Nhap_Kho_Detail_Response> GetDetailOfNhapKhoById(Guid id)
+        {
+            var nhapKho = await context.DM_Nhap_Kho.Where(nk => nk.Id == id).SingleOrDefaultAsync();
+            if (nhapKho == null)
+            {
+                throw new Exception($"Not Found Nhap Kho Id {id}");
+            }
+
+            var response = new DM_Nhap_Kho_Detail_Response
+            {
+                Id = nhapKho.Id.ToString(),
+                So_Phieu_Nhap_Kho = nhapKho.So_Phieu_Nhap_Kho,
+                Kho_Id = nhapKho.Kho_Id.ToString(),
+                NCC_Id = nhapKho.NCC_Id.ToString(),
+                Ngay_Nhap_kho = nhapKho.Ngay_Nhap_kho,
+                Ghi_Chu = nhapKho.Ghi_Chu,
+                List_DM_Nhap_Kho_Raw_Data_Response = await FindInfoRawData(nhapKho.Id.ToString())
+            };
+
+            return response;
+        }
+        private async Task<IList<DM_Nhap_Kho_Raw_Data_Response>> FindInfoRawData(string id)
+        {
+            var listNhapKhoDetail = await context.DM_Nhap_Kho_Raw_Data.Where(nkd => nkd.Nhap_Kho_Id == Guid.Parse(id)).ToListAsync();
+            var listResponse = new List<DM_Nhap_Kho_Raw_Data_Response>();
+            foreach (var item in listNhapKhoDetail)
+            {
+                var response = new DM_Nhap_Kho_Raw_Data_Response();
+                response.Id = item.Id.ToString();
+                response.Nhap_Kho_Id = item.Nhap_Kho_Id.ToString();
+                response.San_Pham_Id = item.San_Pham_Id.ToString();
+                response.SL_Nhap = item.SL_Nhap;
+                response.Don_Gia_Nhap = item.Don_Gia_Nhap;
+                var sanPhamExist = await context.DM_San_Pham.Where(sp => sp.Id == item.San_Pham_Id).SingleOrDefaultAsync();
+                response.Ma_San_Pham = sanPhamExist!.Ma_San_Pham;
+                response.Ten_San_Pham = sanPhamExist!.Ten_San_Pham;
+                response.Ten_Don_Vi_Tinh = await context.DM_Don_Vi_Tinh.Where(dvt => dvt.Id == sanPhamExist!.Don_Vi_Tinh_Id).Select(dvt => dvt.Ten_Don_Vi_Tinh).SingleOrDefaultAsync();
+                listResponse.Add(response);
+            }
+
+            return listResponse;
         }
 
         public async Task<Response> UpdateAsync(DM_Nhap_Kho entity)

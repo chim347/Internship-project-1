@@ -1,0 +1,250 @@
+﻿@page "/sentence9/ViewDetail/{id:Guid}"
+@using System.Globalization
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho NhapKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho_Raw_Data DMNhapKhoRawDataInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Thông tin phiếu nhập kho</PageTitle>
+<h2 class="d-flex justify-content-center">PHIẾU NHẬP KHO</h2>
+<div class="mb-3">Số phiếu nhập: </div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-danger">
+            <tr>
+                <th style="width: 50px;">STT</th>
+                <th style="width: 325px;">Tên sản phẩm</th>
+                <th style="width: 175px;">Mã sản phẩm</th>
+                <th style="width: 145px;">Đơn vị tính</th>
+                <th style="width: 100px;">Số lượng</th>
+                <th style="width: 125px;">Đơn giá</th>
+                <th style="width: 175px;">Trị giá</th>
+                <th style="width: 150px;">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (dM_Nhap_Kho_Raw_Data_Response != null)
+            {
+                var count = 0;
+                @foreach (var product in dM_Nhap_Kho_Raw_Data_Response)
+                {
+                    <tr>
+                        <td>
+                            @{
+                                count = count + 1;
+                            }
+                            @count
+                        </td>
+                        <td>@product.Ten_San_Pham</td>
+                        <td>@product.Ma_San_Pham</td>
+                        <td>@product.Ten_Don_Vi_Tinh</td>
+                        <td>@product.SL_Nhap</td>
+                        <td>@product.Don_Gia_Nhap.ToString("C", CultureInfo.GetCultureInfo("vi-VN"))</td>
+                        <td>
+                            @{
+                                var total = product.SL_Nhap * product.Don_Gia_Nhap;
+                                var format = total.ToString("C", CultureInfo.GetCultureInfo("vi-VN"));
+                            }
+                            @format
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm me-1" @onclick="() => OpenDialogEdit(product)">Sửa</button>
+                            <button class="btn btn-danger btn-sm me-1" @onclick="() => OpenDialogDelete(product)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6"><em>Không có dữ liệu</em></td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="4" class="fw-bold">Tổng</td>
+                <td class="fw-bold">
+                    @{
+                        var sumSLNhap = 0;
+                    }
+                    @if (dM_Nhap_Kho_Raw_Data_Response != null && dM_Nhap_Kho_Raw_Data_Response.Any())
+                    {
+                        @* dM_Nhap_Kho_Raw_Data_Response.Sum(p => p.SL_Nhap); *@
+
+                        @foreach (var product in dM_Nhap_Kho_Raw_Data_Response)
+                        {
+                            sumSLNhap = sumSLNhap + product.SL_Nhap;
+                        }
+                    }
+                    @sumSLNhap
+                </td>
+                <td></td>
+                <td class="fw-bold">
+                    @{
+                        decimal sumDonGiaNhap = 0;
+                    }
+                    @if (dM_Nhap_Kho_Raw_Data_Response != null)
+                    {
+                        @* dM_Nhap_Kho_Raw_Data_Response.Sum(p => p.SL_Nhap * p.Don_Gia_Nhap).ToString("C", CultureInfo.GetCultureInfo("vi-VN")); *@
+                        @foreach (var product in dM_Nhap_Kho_Raw_Data_Response)
+                        {
+                            sumDonGiaNhap = sumDonGiaNhap + (product.SL_Nhap * product.Don_Gia_Nhap);
+                        }
+                    }
+                    @sumDonGiaNhap.ToString("C", CultureInfo.GetCultureInfo("vi-VN"))
+                </td>
+                <td>
+                    <button class="btn btn-success btn-sm" @onclick="() => OpenDialogAdd()">Thêm sản phẩm</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<AddProductDialog Show="ShowDialogAdd" OnCancel="CloseDialogAdd" OnCreate="AddProduct" />
+<DeleteConfirmDialog Show="ShowDialogDelete" OnCancel="CloseDialogDelete" OnDelete="DeleteProduct" />
+<EditProductDialog Show="ShowDialogEdit" OnEdit="EditProduct" OnCancel="CloseDialogEdit" Product="dM_Nhap_Kho_Raw_Data_Edit" />
+
+@code {
+    #region View detail
+    [Parameter]
+    public string? Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Nhap_Kho_Detail_Response? dM_Nhap_Kho_Detail_Response { get; set; }
+    public ICollection<DM_Nhap_Kho_Raw_Data_Response>? dM_Nhap_Kho_Raw_Data_Response { get; set; }
+    public IEnumerable<DM_Kho>? khos { get; set; }
+    public IEnumerable<DM_NCC>? nccs { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Nhap_Kho_Detail_Response ??= await NhapKhoInterface.GetDetailOfNhapKhoById(Guid.Parse(Id!));
+        dM_Nhap_Kho_Raw_Data_Response = dM_Nhap_Kho_Detail_Response.List_DM_Nhap_Kho_Raw_Data_Response;
+        khos = await KhoInterface.GetAllAsync();
+        nccs = await NCCInterface.GetAllAsync();
+    }
+    #endregion
+
+    #region Add Product
+    // show dialog
+    // thêm 1 list hoặc thêm 1 cái
+    //public ICollection<DM_Nhap_Kho_Raw_Data_DTO_Version_2>? dM_San_Pham { get; set; }
+    public DM_Nhap_Kho_Raw_Data_DTO_Version_2? dM_San_Pham { get; set; }
+    [Parameter]
+    public bool ShowDialogAdd { get; set; }
+    [Parameter]
+    public bool ShowDialogEdit { get; set; }
+    [Parameter]
+    public bool ShowDialogDelete { get; set; }
+
+    private async void AddProduct(DM_Nhap_Kho_Raw_Data_DTO_Version_2 sanPham)
+    {
+        //dM_San_Pham ??= new List<DM_Nhap_Kho_Raw_Data_DTO_Version_2>();
+        //dM_San_Pham?.Add(sanPham);
+        dM_San_Pham = sanPham;
+        dM_San_Pham.Nhap_Kho_Id = Id;
+        ShowDialogAdd = false;
+
+        await DMNhapKhoRawDataInterface.CreateAsync(dM_San_Pham);
+        // chức năng reload lại trang => tốn tài nguyên vì chạy lại css, html của trang
+        //NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+
+        // chức năng get lại dữ liệu lên
+        var updatedDetail = await NhapKhoInterface.GetDetailOfNhapKhoById(Guid.Parse(Id!));
+
+        dM_Nhap_Kho_Detail_Response = updatedDetail;
+        dM_Nhap_Kho_Raw_Data_Response = dM_Nhap_Kho_Detail_Response.List_DM_Nhap_Kho_Raw_Data_Response;
+        khos = await KhoInterface.GetAllAsync();
+        nccs = await NCCInterface.GetAllAsync();
+        // Cập nhật giao diện
+        StateHasChanged();
+    }
+    public void OpenDialogAdd()
+    {
+        ShowDialogAdd = true;
+    }
+    public void CloseDialogAdd()
+    {
+        ShowDialogAdd = false;
+    }
+    #endregion
+
+
+    #region Edit product
+    [Parameter]
+    public required DM_Nhap_Kho_Raw_Data_Response dM_Nhap_Kho_Raw_Data_Edit { get; set; }
+    private async void EditProduct(DM_Nhap_Kho_Raw_Data_Response entity)
+    {
+        var nhapKhoRawData = new DM_Nhap_Kho_Raw_Data_DTO_Edit
+        {
+            Id = entity.Id,
+            SL_Nhap = entity.SL_Nhap,
+            Don_Gia_Nhap = entity.Don_Gia_Nhap
+        };
+
+        await DMNhapKhoRawDataInterface.UpdateAsync(nhapKhoRawData);
+        ShowDialogEdit = false;
+
+        //var updateDetail = await NhapKhoInterface.GetDetailOfNhapKhoById(Guid.Parse(Id!));
+        //dM_Nhap_Kho_Detail_Response = updateDetail;
+        //dM_Nhap_Kho_Raw_Data_Response = dM_Nhap_Kho_Detail_Response.List_DM_Nhap_Kho_Raw_Data_Response;
+        //khos = await KhoInterface.GetAllAsync();
+        //nccs = await NCCInterface.GetAllAsync();
+        //StateHasChanged();
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        
+    }
+    public void OpenDialogEdit(DM_Nhap_Kho_Raw_Data_Response entity)
+    {
+        dM_Nhap_Kho_Raw_Data_Edit = entity;
+        ShowDialogEdit = true;
+    }
+    public void CloseDialogEdit()
+    {
+        ShowDialogEdit = false;
+    }
+    #endregion
+
+    #region Delete
+    // lấy product đem đi xóa
+    [Parameter]
+    public required DM_Nhap_Kho_Raw_Data_Response dM_Nhap_Kho_Raw_Data { get; set; }
+    private async void DeleteProduct()
+    {
+        var dm_San_Pham_Raw_Data = new DM_Nhap_Kho_Raw_Data
+            {
+                Id = Guid.Parse(dM_Nhap_Kho_Raw_Data.Id!),
+                Nhap_Kho_Id = Guid.Parse(dM_Nhap_Kho_Raw_Data.Nhap_Kho_Id!),
+                San_Pham_Id = Guid.Parse(dM_Nhap_Kho_Raw_Data.San_Pham_Id!),
+                SL_Nhap = dM_Nhap_Kho_Raw_Data.SL_Nhap,
+                Don_Gia_Nhap = dM_Nhap_Kho_Raw_Data.Don_Gia_Nhap
+            };
+
+        await DMNhapKhoRawDataInterface.DeleteAsync(dm_San_Pham_Raw_Data);
+        ShowDialogDelete = false;
+
+        var updateDetail = await NhapKhoInterface.GetDetailOfNhapKhoById(Guid.Parse(Id!));
+
+        dM_Nhap_Kho_Detail_Response = updateDetail;
+        dM_Nhap_Kho_Raw_Data_Response = dM_Nhap_Kho_Detail_Response.List_DM_Nhap_Kho_Raw_Data_Response;
+        khos = await KhoInterface.GetAllAsync();
+        nccs = await NCCInterface.GetAllAsync();
+        StateHasChanged();
+    }
+    public void OpenDialogDelete(DM_Nhap_Kho_Raw_Data_Response entity)
+    {
+        dM_Nhap_Kho_Raw_Data = entity;
+        ShowDialogDelete = true;
+    }
+    public void CloseDialogDelete()
+    {
+        ShowDialogDelete = false;
+    }
+    #endregion
+}
+

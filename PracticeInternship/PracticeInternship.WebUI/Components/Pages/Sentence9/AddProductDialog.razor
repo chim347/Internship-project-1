@@ -1,0 +1,124 @@
+﻿@using PracticeInternship.Application.DTOs
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh DonViTinhInterface
+
+@if (Show)
+{
+    <div class="confirm-dialog-container">
+        <div class="confirm-dialog">
+            <h3 class="text-center">Xác nhận thêm mới sản phẩm</h3>
+
+            <div class="mb-3">
+                <label for="codeProduct" class="form-label">Mã sản phẩm</label>
+                <InputText id="codeProduct" class="form-control" @bind-Value="dm_Nhap_Kho_San_Pham.Ma_San_Pham"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Tên sản phẩm</label>
+                <InputText id="note" class="form-control" @bind-Value="dm_Nhap_Kho_San_Pham.Ten_San_Pham"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Số lượng</label>
+                <InputNumber id="note" class="form-control" @bind-Value="dm_Nhap_Kho_San_Pham.SL_Nhap"></InputNumber>
+            </div>
+            <div class="mb-3">
+                <label for="note" class="form-label">Đơn giá</label>
+                <InputNumber id="note" class="form-control" @bind-Value="dm_Nhap_Kho_San_Pham.Don_Gia_Nhap"></InputNumber>
+            </div>
+            <div class="mb-3">
+                <label for="DonViTinhId" class="form-label">Đơn vị tính</label>
+                <select id="DonViTinhId" class="form-select" @onchange="e => dm_Nhap_Kho_San_Pham.Don_Vi_Tinh_Id = e.Value!.ToString()!">
+                    <option value="0">Danh mục đơn vị tính</option>
+                    @if (DonViTinhs == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        @foreach (var item in DonViTinhs)
+                        {
+                            <option value="@item.Id">@item.Ten_Don_Vi_Tinh</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="LoaiSanPhamId" class="form-label">Loại sản phẩm</label>
+                <select id="LoaiSanPhamId" class="form-select" @onchange="e => dm_Nhap_Kho_San_Pham.Loai_San_Pham_Id = e.Value!.ToString()!">
+                    <option value="0">Danh mục loại sản phẩm</option>
+                    @if (LoaiSanPhams == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        @foreach (var item in LoaiSanPhams)
+                        {
+                            <option value="@item.Id">@item.Ten_LSP</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="d-flex flex-row justify-content-center mt-3">
+                <button @onclick="() => HandleCreate()" class="btn btn-primary shadow-none">Add</button>
+                <button @onclick="OnCancel" class="btn btn-secondary shadow-none ms-3">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<style>
+    .confirm-dialog-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+    }
+
+    .confirm-dialog {
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        justify-content: space-between;
+        min-width: 20rem;
+        padding: 2rem;
+        border-radius: 1rem;
+        position: fixed;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+@code {
+    // dropdown
+    public IEnumerable<DM_Don_Vi_Tinh>? DonViTinhs { get; set; }
+    public IEnumerable<DM_Loai_San_Pham>? LoaiSanPhams { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        DonViTinhs = await DonViTinhInterface.GetAllAsync();
+        LoaiSanPhams = await LoaiSanPhamInterface.GetAllAsync();
+    }
+
+    // phần của dialog
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+    [Parameter]
+    public EventCallback<DM_Nhap_Kho_Raw_Data_DTO_Version_2> OnCreate { get; set; }
+
+    private DM_Nhap_Kho_Raw_Data_DTO_Version_2 dm_Nhap_Kho_San_Pham { get; set; } = new();
+
+    private void HandleCreate()
+    {
+        OnCreate.InvokeAsync(dm_Nhap_Kho_San_Pham);
+        dm_Nhap_Kho_San_Pham = new DM_Nhap_Kho_Raw_Data_DTO_Version_2();
+    }
+}

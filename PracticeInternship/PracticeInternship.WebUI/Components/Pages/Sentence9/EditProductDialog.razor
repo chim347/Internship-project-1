@@ -1,0 +1,88 @@
+﻿@using PracticeInternship.Application.DTOs
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Loai_San_Pham LoaiSanPhamInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Don_Vi_Tinh DonViTinhInterface
+
+@if (Show)
+{
+    <div class="confirm-dialog-container">
+        <div class="confirm-dialog">
+            <h3 class="text-center">Chỉnh sửa sản phẩm</h3>
+            <EditForm Model="Product" OnValidSubmit="HandleEdit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="codeProduct" class="form-label">Mã sản phẩm</label>
+                    <InputText id="codeProduct" class="form-control" @bind-Value="Product.Ma_San_Pham" readonly></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="nameProduct" class="form-label">Tên sản phẩm</label>
+                    <InputText id="nameProduct" class="form-control" @bind-Value="Product.Ten_San_Pham" readonly></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="soLuong">Số lượng</label>
+                    <InputNumber id="soLuong" class="form-control" @bind-Value="Product.SL_Nhap" />
+                </div>
+                <div class="mb-3">
+                    <label for="donGia">Đơn giá</label>
+                    <InputNumber id="donGia" class="form-control" @bind-Value="Product.Don_Gia_Nhap" />
+                </div>
+                <div class="mb-3">
+                    <label for="DonViTinhId" class="form-label">Đơn vị tính</label>
+                    <InputText id="DonViTinhId" class="form-control" @bind-Value="Product.Ten_Don_Vi_Tinh" readonly />
+                </div>
+                <div class="d-flex flex-row justify-content-center mt-3">
+                    <button type="submit" class="btn btn-primary shadow-none">Edit</button>
+                    <button type="button" @onclick="OnCancel" class="btn btn-secondary shadow-none ms-3">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<style>
+    .confirm-dialog-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+    }
+
+    .confirm-dialog {
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        justify-content: space-between;
+        min-width: 40rem;
+        padding: 2rem;
+        border-radius: 1rem;
+        position: fixed;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+@code {
+    // phần của dialog
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ShowChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+    [Parameter]
+    public EventCallback<DM_Nhap_Kho_Raw_Data_Response> OnEdit { get; set; }
+    [Parameter]
+    public DM_Nhap_Kho_Raw_Data_Response Product { get; set; } = new();
+
+    private async Task HandleEdit()
+    {
+        await OnEdit.InvokeAsync(Product);
+    }
+}
