@@ -1,7 +1,6 @@
-﻿@page "/sentence10/reading"
+﻿@page "/sentence14/reading"
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
-@inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
-@inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho NhapKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Xuat_kho XuatKhoInterface
 @using PracticeInternship.Domain.Entities
 @using PracticeInternship.WebUI.Components.Pages.Sentence1
 @rendermode InteractiveServer
@@ -9,11 +8,11 @@
 @inject NavigationManager NavigationManager
 
 
-<PageTitle>Sentence 10</PageTitle>
+<PageTitle>Sentence 14</PageTitle>
 
-<h1>Danh sách phiếu nhập cần in</h1>
+<h1>Danh sách phiếu xuất cần in</h1>
 
-@if (nhapKhos == null)
+@if (xuatKhos == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -22,29 +21,24 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Số phiếu nhập</th>
-                <th>Nhà cung cấp</th>
+                <th>Số phiếu xuất</th>
                 <th>Kho</th>
-                <th>Ngày nhập kho</th>
+                <th>Ngày xuất kho</th>
                 <th>Trạng thái</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in nhapKhos)
+            @foreach (var forecast in xuatKhos)
             {
                 <tr>
-                    <td>@forecast.So_Phieu_Nhap_Kho</td>
-                    <td>
-                        @nccs!.FirstOrDefault(ncc => ncc.Id == forecast.NCC_Id)!.Ten_NCC
-                    </td>
+                    <td>@forecast.So_Phieu_Xuat_Kho</td>
                     <td>
                         @khos!.FirstOrDefault(kho => kho.Id == forecast.Kho_Id)!.Ten_Kho
                     </td>
-                    <td>@forecast.Ngay_Nhap_kho.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                    <td>@forecast.Ngay_Xuat_Kho.ToString("dd/MM/yyyy hh:mm:ss")</td>
                     <td>
-                        <a class="btn btn-success btn-sm rounded-1 shadow-none" href="@($"/sentence10/ViewDetail/{forecast.Id}")">In phiếu nhập</a>
+                        <a class="btn btn-success btn-sm rounded-1 shadow-none" href="@($"/sentence14/ViewDetail/{forecast.Id}")">In phiếu xuất</a>
                     </td>
-
                 </tr>
             }
         </tbody>
@@ -56,15 +50,13 @@ else
     // find id of table xnk_nhap_kho, if id exist, disable button edit
 
     public IEnumerable<DM_Kho>? khos { get; set; }
-    public IEnumerable<DM_NCC>? nccs { get; set; }
-    public IEnumerable<DM_Nhap_Kho>? nhapKhos { get; set; }
+    public IEnumerable<DM_Xuat_Kho>? xuatKhos { get; set; }
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
 
-        nccs = await NCCInterface.GetAllAsync();
         khos = await KhoInterface.GetAllAsync();
-        nhapKhos = await NhapKhoInterface.GetAllAsync();
+        xuatKhos = await XuatKhoInterface.GetAllAsync();
     }
 }

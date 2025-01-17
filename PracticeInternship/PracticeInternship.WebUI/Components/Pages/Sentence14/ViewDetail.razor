@@ -1,0 +1,263 @@
+﻿@page "/sentence14/ViewDetail/{id:Guid}"
+@using System.Globalization
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Xuat_kho XuatKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Xuat_Kho_Raw_Data DMXuatKhoRawDataInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Thông tin phiếu xuất kho</PageTitle>
+@{
+    var culture = CultureInfo.GetCultureInfo("en-US");
+    culture = (CultureInfo)culture.Clone();
+    culture.NumberFormat.CurrencySymbol = "";
+}
+@if (dM_Xuat_Kho_Detail_Response != null)
+{
+    <h2 class="d-flex justify-content-center fw-bold">PHIẾU XUẤT KHO</h2>
+    <div class="d-flex justify-content-center">@dM_Xuat_Kho_Detail_Response.Ngay_Xuat_kho.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy", CultureInfo.GetCultureInfo("vi-VN"))</div>
+    <div class="d-flex justify-content-center fw-bold">Số: 28/2016</div>
+
+    <div class="text-start fw-bold">I. Thông tin chung</div>
+    <div class="row">
+        <div class="d-flex">
+            <div class="text-start" style="margin-left: 2px; width: 145px;">1. Lệnh giao hàng: </div>
+            <div class="text-start fw-bold">425/07</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="d-flex">
+            <div class="text-start" style="margin-left: 2px; width: 145px;">2. Cửa hàng: </div>
+            <div class="text-start fw-bold">Khách lẻ</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="d-flex">
+            <div class="text-start" style="margin-left: 2px; width: 145px;">3. Kho: </div>
+            <div class="text-start fw-bold">@dM_Xuat_Kho_Detail_Response.Ten_Kho</div>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="d-flex">
+            <div class="text-start" style="margin-left: 2px; width: 145px;">4. Ghi chú: </div>
+            <div class="text-start fw-bold">Khách lẻ (...)</div>
+        </div>
+    </div>
+    <div class="text-start fw-bold">II. Thông tin hàng</div>
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle" style="border: 1px solid black;">
+            <thead class="table-warning" style="border: 1px solid black;">
+                <tr>
+                    <th style="width: 50px;">STT</th>
+                    <th style="width: 175px;">Mã Hàng</th>
+                    <th style="width: 325px;">Tên Hàng</th>
+                    <th style="width: 175px;">PO</th>
+                    <th style="width: 175px;">Số Chỉ Lệnh</th>
+                    <th style="width: 100px;">SL</th>
+                    <th style="width: 145px;">ĐVT</th>
+                    <th style="width: 125px;">Kiểm Kê</th>
+                    <th style="width: 175px;">Ghi Chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (dM_Xuat_Kho_Raw_Data_Response != null)
+                {
+                    var count = 0;
+                    @foreach (var product in dM_Xuat_Kho_Raw_Data_Response)
+                    {
+                        <tr>
+                            <td>
+                                @{
+                                    count = count + 1;
+                                }
+                                @count
+                            </td>
+                            <td>@product.Ma_San_Pham</td>
+                            <td>@product.Ten_San_Pham</td>
+                            <td></td>
+                            <td></td>
+                            <td>@product.SL_Xuat</td>
+                            <td>@product.Ten_Don_Vi_Tinh</td>
+                            <td></td>
+                            <td>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6"><em>Không có dữ liệu</em></td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+
+    <div class="text-start fw-bold mt-2">III. Kết luận</div>
+    <div class="row">
+        <div class="d-flex align-items-center">
+            <div class="">1. Tổng số lương thực xuất (viết bằng số) : </div>
+            @{
+                int sumSL_Xuat = 0;
+            }
+            @if (dM_Xuat_Kho_Raw_Data_Response != null)
+            {
+                @foreach (var product in dM_Xuat_Kho_Raw_Data_Response)
+                {
+                    sumSL_Xuat = sumSL_Xuat + product.SL_Xuat;
+                }
+            }
+            <div style="margin-left: 10px;">@sumSL_Xuat</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="d-flex align-items-center">
+            <div class="">2. Tổng số lương thực xuất (viết bằng chữ) : </div>
+            <div style="margin-left: 10px;">@NumberToWords(sumSL_Xuat)</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="d-flex align-items-center">
+            <div class="">3. Mô tả khác biệt: </div>
+            <div></div>
+        </div>
+    </div>
+    <div style="width: auto; height: 200px; border: 2px solid black;">
+    </div>
+
+    <div class="row text-center mt-2">
+        <div class="col">
+            <div class="fw-bold">
+                Người Lập Phiếu
+            </div>
+            <div style="font-size: 14px;">
+                (Ký, họ tên)
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="fw-bold">
+                Người Nhận Hàng
+            </div>
+            <div style="font-size: 14px;">
+                (Ký, họ tên)
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="fw-bold">
+                Điều phối
+            </div>
+            <div style="font-size: 14px;">
+                (Ký, họ tên)
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="fw-bold">
+                Giám đốc
+            </div>
+            <div style="font-size: 14px;">
+                (Ký, họ tên)
+            </div>
+        </div>
+    </div>
+    <div style="width: auto; height: 200px; border: 1px;">
+    </div>
+}
+
+@code {
+    #region View detail
+    [Parameter]
+    public string? Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Xuat_Kho_Detail_Response? dM_Xuat_Kho_Detail_Response { get; set; }
+    public ICollection<DM_Xuat_Kho_Raw_Data_Response>? dM_Xuat_Kho_Raw_Data_Response { get; set; }
+    public IEnumerable<DM_Kho>? khos { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Xuat_Kho_Detail_Response ??= await XuatKhoInterface.GetDetailOfXuatKhoById(Guid.Parse(Id!));
+        dM_Xuat_Kho_Raw_Data_Response = dM_Xuat_Kho_Detail_Response.List_DM_Xuat_Kho_Raw_Data_Response;
+        khos = await KhoInterface.GetAllAsync();
+    }
+    #endregion
+
+    #region ConvertCurrencyText helper
+    public static string NumberToWords(decimal number)
+    {
+        if (number == 0)
+            return "không";
+
+        string[] units = { "", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
+        string[] levels = { "", "nghìn", "triệu", "tỷ" };
+
+        string result = "";
+        int levelIndex = 0;
+
+        long integerPart = (long)Math.Floor(number); // Lấy phần nguyên
+        int fractionalPart = (int)((number - integerPart) * 100); // Lấy phần thập phân (2 chữ số)
+
+        while (integerPart > 0)
+        {
+            int group = (int)(integerPart % 1000); // Lấy từng nhóm 3 số
+            integerPart /= 1000;
+
+            if (group > 0)
+            {
+                string groupWords = ConvertGroupToWords(group, units);
+                result = $"{groupWords} {levels[levelIndex]} {result}".Trim();
+            }
+
+            levelIndex++;
+        }
+
+        result = $"{result.Trim()}";
+
+        if (fractionalPart > 0)
+        {
+            result += $" và {ConvertGroupToWords(fractionalPart, units)} xu";
+        }
+
+        return char.ToUpper(result[0]) + result.Substring(1).Trim();
+    }
+
+    private static string ConvertGroupToWords(int group, string[] units)
+    {
+        string result = "";
+
+        int hundreds = group / 100;
+        int tens = (group % 100) / 10;
+        int ones = group % 10;
+
+        if (hundreds > 0)
+            result += $"{units[hundreds]} trăm ";
+
+        if (tens > 1)
+        {
+            result += $"{units[tens]} mươi ";
+            if (ones > 0)
+                result += units[ones];
+        }
+        else if (tens == 1)
+        {
+            result += "mười ";
+            if (ones > 0)
+                result += units[ones];
+        }
+        else
+        {
+            if (ones > 0)
+                result += $"lẻ {units[ones]}";
+        }
+
+        return result.Trim();
+    }
+    #endregion
+}
+

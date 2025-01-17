@@ -13,5 +13,8 @@ namespace PracticeInternship.Application.Interfaces
 
         // hiệu chỉnh phiếu xuất cho phần header
         Task<Response> UpdateAsync(DM_Xuat_Kho entity);
+
+        // get detail của 1 phiếu xuất kho với các thông tin từ DM_Xuat_Kho_Raw_Data
+        Task<DM_Xuat_Kho_Detail_Response> GetDetailOfXuatKhoById(Guid id);
     }
 }
