@@ -136,6 +136,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 Id = nhapKho.Id.ToString(),
                 So_Phieu_Nhap_Kho = nhapKho.So_Phieu_Nhap_Kho,
                 Kho_Id = nhapKho.Kho_Id.ToString(),
+                Ten_Kho = await context.DM_Kho.Where(k=>k.Id == nhapKho.Kho_Id).Select(k => k.Ten_Kho).SingleOrDefaultAsync(),
                 NCC_Id = nhapKho.NCC_Id.ToString(),
                 Ngay_Nhap_kho = nhapKho.Ngay_Nhap_kho,
                 Ghi_Chu = nhapKho.Ghi_Chu,

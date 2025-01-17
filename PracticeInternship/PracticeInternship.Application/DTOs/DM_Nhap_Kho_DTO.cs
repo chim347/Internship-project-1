@@ -57,6 +57,7 @@ namespace PracticeInternship.Application.DTOs
         public string? So_Phieu_Nhap_Kho { get; set; }
 
         public string? Kho_Id { get; set; }
+        public string? Ten_Kho { get; set; }
 
         public string? NCC_Id { get; set; }
 
