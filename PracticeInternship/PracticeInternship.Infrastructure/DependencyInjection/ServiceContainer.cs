@@ -29,6 +29,7 @@ namespace PracticeInternship.Infrastructure.DependencyInjection
             services.AddScoped<Interface_DM_Nhap_Kho_Raw_Data, DM_Nhap_Kho_Raw_Data_Repository>();
             services.AddScoped<Interface_XNK_Nhap_Kho, XNK_Nhap_Kho_Repository>();
             services.AddScoped<Interface_DM_Xuat_kho, DM_Xuat_Kho_Repository>();
+            services.AddScoped<Interface_XNK_Xuat_Kho, XNK_Xuat_Kho_Repository>();
 
             return services;
         }

@@ -1,0 +1,87 @@
+﻿@page "/sentence12/editData/{id:Guid}"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Xuat_kho XuatKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Hiệu chỉnh header của phiếu xuất kho</PageTitle>
+@if (dM_Xuat_Kho != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <EditForm Enhance="true" FormName="EditXuatKhoForm" OnValidSubmit="EditXuatKho" Model="dM_Xuat_Kho">
+                <h3>Phần header của phiếu xuất kho</h3>
+                <input type="hidden" name="dM_Xuat_Kho.Id" value="@dM_Xuat_Kho.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Số phiếu nhập kho</label>
+                    <InputText id="name" @bind-Value="dM_Xuat_Kho.So_Phieu_Xuat_Kho" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="KhoId" class="form-label">Tên kho</label>
+                    <select id="KhoId" class="form-select" @onchange="e => dM_Xuat_Kho.Kho_Id = Guid.Parse(e.Value!.ToString()!)">
+                        <option value="0">Danh mục kho</option>
+                        @if (khos == null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            @foreach (var item in khos)
+                            {
+                                <option value="@item.Id">@item.Ten_Kho</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Ngày nhập kho</label>
+                    <InputDate id="name" @bind-Value="dM_Xuat_Kho.Ngay_Xuat_Kho" class="form-control"></InputDate>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Ghi chú</label>
+                    <InputTextArea id="name" @bind-Value="dM_Xuat_Kho.Ghi_Chu" class="form-control"></InputTextArea>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary shadow-none">Update</button>
+                    <a href="/sentence12/reading" class="btn btn-primary shadow-none ms-3">Quay lại trang danh sách hiệu chỉnh</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public DM_Xuat_Kho? dM_Xuat_Kho { get; set; }
+    public IEnumerable<DM_Kho>? khos { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        dM_Xuat_Kho ??= await XuatKhoInterface.GetByIdAsync(Guid.Parse(Id!));
+        khos = await KhoInterface.GetAllAsync();
+    }
+
+    private async Task EditXuatKho()
+    {
+        try
+        {
+            var response = await XuatKhoInterface.UpdateAsync(dM_Xuat_Kho!);
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence12/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Chỉnh sửa thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

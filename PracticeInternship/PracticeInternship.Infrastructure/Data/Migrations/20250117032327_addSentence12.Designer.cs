@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PracticeInternship.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using PracticeInternship.Infrastructure.Data;
 namespace PracticeInternship.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(PracticeInternshipDbContext))]
-    partial class PracticeInternshipDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250117032327_addSentence12")]
+    partial class addSentence12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

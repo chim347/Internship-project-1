@@ -21,6 +21,7 @@ namespace PracticeInternship.Infrastructure.Data
         public DbSet<XNK_Nhap_Kho> XNK_Nhap_Kho { get; set; }
         public DbSet<DM_Xuat_Kho> DM_Xuat_Kho { get; set; }
         public DbSet<DM_Xuat_Kho_Raw_Data> DM_Xuat_Kho_Raw_Data { get; set; }
+        public DbSet<XNK_Xuat_Kho> XNK_Xuat_Kho { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

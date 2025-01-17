@@ -122,5 +122,53 @@ namespace PracticeInternship.Infrastructure.Repositories
                 throw new Exception($"Error occurred retrieving DM_Xuat_Kho, {ex.Message}");
             }
         }
+
+        public async Task<Response> UpdateAsync(DM_Xuat_Kho entity)
+        {
+            try
+            {
+                var xuatKho = await context.DM_Xuat_Kho.Where(nk => nk.Id == entity.Id).AsNoTracking().SingleOrDefaultAsync();
+                if (xuatKho == null)
+                {
+                    return new Response(false, $"{entity.So_Phieu_Xuat_Kho} not found");
+                }
+
+                // Detach entity hiện tại nếu nó đang được tracking
+                context.Entry(xuatKho).State = EntityState.Detached;
+
+                // check null
+                if (string.IsNullOrEmpty(entity.So_Phieu_Xuat_Kho))
+                    return new Response(false, "Số phiếu xuất không được rỗng.");
+                if (string.IsNullOrEmpty(entity.Kho_Id.ToString()))
+                    return new Response(false, "Kho không được rỗng.");
+                if (entity.Ngay_Xuat_Kho == default)
+                    return new Response(false, "Ngày xuất kho không được rỗng.");
+
+                // check So_Phieu_Xuat_Kho is already exist
+                if (!string.Equals(xuatKho.So_Phieu_Xuat_Kho, entity.So_Phieu_Xuat_Kho, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (await context.DM_Xuat_Kho.AnyAsync(x => x.So_Phieu_Xuat_Kho == entity.So_Phieu_Xuat_Kho))
+                        return new Response(false, "Số phiếu xuất đã tồn tại.");
+                }
+
+                var xnk = new XNK_Xuat_Kho
+                {
+                    Xuat_Kho_Id = entity.Id,
+                    So_Phieu_Xuat_Kho = entity.So_Phieu_Xuat_Kho,
+                    Kho_Id = entity.Kho_Id,
+                    Ngay_Xuat_kho = entity.Ngay_Xuat_Kho,
+                    Ghi_Chu = entity.Ghi_Chu,
+                };
+
+                context.XNK_Xuat_Kho.Add(xnk);
+                await context.SaveChangesAsync();
+
+                return new Response(true, $"{entity.So_Phieu_Xuat_Kho} is update successfully");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error occurred updating existing DM_San_Pham, {ex.Message}");
+            }
+        }
     }
 }

@@ -19,5 +19,7 @@ namespace PracticeInternship.Domain.Entities
 
         public virtual DM_Kho DM_Kho { get; set; } = null!;
         public virtual IList<DM_Xuat_Kho_Raw_Data> DM_Xuat_Kho_Raw_Data { get; set; } = null!;
+        public virtual XNK_Xuat_Kho XNK_Xuat_Kho { get; set; } = null!;
+
     }
 }

@@ -10,5 +10,8 @@ namespace PracticeInternship.Application.Interfaces
         Task<Response> DeleteAsync(DM_Xuat_Kho entity);
         Task<IEnumerable<DM_Xuat_Kho>> GetAllAsync();
         Task<DM_Xuat_Kho> GetByIdAsync(Guid id);
+
+        // hiệu chỉnh phiếu xuất cho phần header
+        Task<Response> UpdateAsync(DM_Xuat_Kho entity);
     }
 }
