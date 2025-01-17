@@ -1,0 +1,63 @@
+﻿@page "/sentence13/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Xuat_kho XuatKhoInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Sentence 13</PageTitle>
+
+<h1>Hiệu chỉnh chi tiết phiếu xuất</h1>
+
+@if (xuatKhos == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Số phiếu nhập</th>
+                <th>Kho</th>
+                <th>Ngày nhập kho</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in xuatKhos)
+            {
+                <tr>
+                    <td>@forecast.So_Phieu_Xuat_Kho</td>
+                    <td>
+                        @khos!.FirstOrDefault(kho => kho.Id == forecast.Kho_Id)!.Ten_Kho
+                    </td>
+                    <td>@forecast.Ngay_Xuat_Kho.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                    <td>
+                        <a class="bg-warning btn rounded-1 shadow-none" href="@($"/sentence13/ViewDetail/{forecast.Id}")">Xem thông tin chi tiết</a>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    // find id of table xnk_nhap_kho, if id exist, disable button edit
+
+    public IEnumerable<DM_Kho>? khos { get; set; }
+    public IEnumerable<DM_Xuat_Kho>? xuatKhos { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        khos = await KhoInterface.GetAllAsync();
+        xuatKhos = await XuatKhoInterface.GetAllAsync();
+    }
+}
