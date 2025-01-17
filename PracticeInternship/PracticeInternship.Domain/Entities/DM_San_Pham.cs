@@ -22,6 +22,7 @@ namespace PracticeInternship.Domain.Entities
 
         // relationship
         public virtual IList<DM_Nhap_Kho_Raw_Data> DM_Nhap_Kho_Raw_Data { get; set; } = null!;
+        public virtual IList<DM_Xuat_Kho_Raw_Data> DM_Xuat_Kho_Raw_Data { get; set; } = null!;
         public virtual DM_Don_Vi_Tinh DM_Don_Vi_Tinh { get; set; } = null!;
         public virtual DM_Loai_San_Pham DM_Loai_San_Pham { get; set; } = null!;
     }

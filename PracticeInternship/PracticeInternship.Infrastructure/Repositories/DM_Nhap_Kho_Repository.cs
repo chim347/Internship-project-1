@@ -123,6 +123,7 @@ namespace PracticeInternship.Infrastructure.Repositories
             }
         }
 
+        #region GetDetailOfNhapKhoById
         public async Task<DM_Nhap_Kho_Detail_Response> GetDetailOfNhapKhoById(Guid id)
         {
             var nhapKho = await context.DM_Nhap_Kho.Where(nk => nk.Id == id).SingleOrDefaultAsync();
@@ -145,6 +146,7 @@ namespace PracticeInternship.Infrastructure.Repositories
 
             return response;
         }
+
         private async Task<IList<DM_Nhap_Kho_Raw_Data_Response>> FindInfoRawData(string id)
         {
             var listNhapKhoDetail = await context.DM_Nhap_Kho_Raw_Data.Where(nkd => nkd.Nhap_Kho_Id == Guid.Parse(id)).ToListAsync();
@@ -166,6 +168,7 @@ namespace PracticeInternship.Infrastructure.Repositories
 
             return listResponse;
         }
+        #endregion
 
         public async Task<Response> UpdateAsync(DM_Nhap_Kho entity)
         {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PracticeInternship.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using PracticeInternship.Infrastructure.Data;
 namespace PracticeInternship.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(PracticeInternshipDbContext))]
-    partial class PracticeInternshipDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250117023142_addSentence11")]
+    partial class addSentence11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -218,8 +221,8 @@ namespace PracticeInternship.Infrastructure.Data.Migrations
                     b.Property<Guid>("Kho_Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Ngay_Xuat_Kho")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Ngay_Xuat_Kho")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("So_Phieu_Xuat_Kho")
                         .HasColumnType("nvarchar(max)");

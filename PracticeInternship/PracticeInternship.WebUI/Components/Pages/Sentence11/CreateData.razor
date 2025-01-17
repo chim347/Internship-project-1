@@ -1,0 +1,136 @@
+﻿@page "/sentence11/createData"
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.Application.DTOs.Conversions
+@using PracticeInternship.Application.Responses
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Xuat_kho XuatKhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
+@inject PracticeInternship.Application.Interfaces.Interface_DM_San_Pham SanPhamInterface
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Tạo mới phiếu xuất kho</PageTitle>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <EditForm Enhance="true" FormName="CreateXuatKhoForm" OnValidSubmit="CreateXuatKho" Model="dM_Xuat_Kho">
+            <h3>Tạo mới phiếu xuất kho</h3>
+            <div class="mb-3">
+                <label for="name" class="form-label">Số phiếu xuất kho</label>
+                <InputText id="name" @bind-Value="dM_Xuat_Kho.So_Phieu_Xuat_Kho" class="form-control"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="KhoId" class="form-label">Tên kho</label>
+                <select id="KhoId" class="form-select" @onchange="e => dM_Xuat_Kho.Kho_Id = e.Value!.ToString()!">
+                    <option value="0">Danh mục kho</option>
+                    @if (khos == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        @foreach (var item in khos)
+                        {
+                            <option value="@item.Id">@item.Ten_Kho</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Ngày nhập kho</label>
+                <InputDate id="name" @bind-Value="dM_Xuat_Kho.Ngay_Xuat_Kho" class="form-control"></InputDate>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Ghi chú</label>
+                <InputTextArea id="name" @bind-Value="dM_Xuat_Kho.Ghi_Chu" class="form-control"></InputTextArea>
+            </div>
+            <div class="mb-3">
+                <button type="button" class="btn btn-light shadow-none" @onclick="HandleAddInfoProduct">Thêm thông tin sản phẩm</button>
+            </div>
+            @foreach (var product in ProductDetails)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Thông tin sản phẩm</h5>
+                        <div class="mb-3">
+                            <label for="SanPhamId" class="form-label">Sản phẩm</label>
+                            <select id="SanPhamId" class="form-select" @onchange="e => product.San_Pham_Id = e.Value!.ToString()!">
+                                <option value="0">Danh mục sản phẩm</option>
+                                @if (sanPhams == null)
+                                {
+                                    <p><em>Loading...</em></p>
+                                }
+                                else
+                                {
+                                    @foreach (var item in sanPhams)
+                                    {
+                                        <option value="@item.Id">@item.Ten_San_Pham</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="SLNhap" class="form-label">Số lượng xuất</label>
+                            <InputNumber id="SLNhap" @bind-Value="product.SL_Xuat" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="DonGiaNhap" class="form-label">Đơn giá xuất</label>
+                            <InputNumber id="DonGiaNhap" @bind-Value="product.Don_Gia_Xuat" class="form-control" />
+                        </div>
+                        <button type="button" class="btn btn-danger" @onclick="() => RemoveProductCard(product)">Xóa</button>
+                    </div>
+                </div>
+            }
+            <div class="mb-3">
+                <button class="btn btn-primary shadow-none" type="submit">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    // thêm thông tin sản phẩm
+    private List<DM_Xuat_Kho_Raw_Data_DTO> ProductDetails { get; set; } = new();
+    public void HandleAddInfoProduct()
+    {
+        ProductDetails.Add(new DM_Xuat_Kho_Raw_Data_DTO());
+    }
+    private void RemoveProductCard(DM_Xuat_Kho_Raw_Data_DTO product)
+    {
+        ProductDetails.Remove(product);
+    }
+
+
+    public IEnumerable<DM_Kho>? khos { get; set; }
+    public IEnumerable<DM_San_Pham>? sanPhams { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        khos = await KhoInterface.GetAllAsync();
+        sanPhams = await SanPhamInterface.GetAllAsync();
+    }
+
+    [SupplyParameterFromForm]
+    private DM_Xuat_Kho_DTO dM_Xuat_Kho { get; set; } = new DM_Xuat_Kho_DTO();
+
+    private async Task CreateXuatKho()
+    {
+        try
+        {
+            dM_Xuat_Kho.List_DM_Xuat_Kho_Raw_Data_DTO= ProductDetails.Any() ? ProductDetails : null;
+            var response = await XuatKhoInterface.CreateAsync(dM_Xuat_Kho);
+
+            if (response.Flag)
+            {
+                ToastService.ShowSuccess($"{response.Message}");
+                NavigationManager.NavigateTo("/sentence11/reading");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm mới thất bại: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+}

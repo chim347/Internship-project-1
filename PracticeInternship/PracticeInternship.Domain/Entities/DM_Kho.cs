@@ -13,7 +13,8 @@ namespace PracticeInternship.Domain.Entities
         public string? Ghi_Chu { get; set; }
 
         // relationship
-        public virtual IList<DM_Kho_User> DM_Kho_User { get; set; } = null!;
+        public virtual IList<DM_Kho_User> DM_Kho_User { get; set; } = null!; 
+        public virtual IList<DM_Xuat_Kho> DM_Xuat_Kho { get; set; } = null!;
         public virtual IList<DM_Nhap_Kho> DM_Nhap_Kho { get; set; } = null!;
     }
 }
