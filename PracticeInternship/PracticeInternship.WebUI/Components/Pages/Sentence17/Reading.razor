@@ -1,0 +1,112 @@
+﻿@page "/sentence17/reading"
+@inject PracticeInternship.Application.Interfaces.Interface_Report_Xuat_Nhap_Ton ReportXuatNhapTonInterface
+@using PracticeInternship.Domain.Entities
+@using PracticeInternship.Application.DTOs
+@using PracticeInternship.WebUI.Components.Pages.Sentence1
+@using MudBlazor
+@using System.Globalization
+@rendermode InteractiveServer
+@inject IModalService model
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+
+<PageTitle>Sentence 17</PageTitle>
+@{
+    var culture = CultureInfo.GetCultureInfo("en-US");
+    culture = (CultureInfo)culture.Clone();
+    culture.NumberFormat.CurrencySymbol = "";
+}
+<h1>Báo cáo xuất nhập tồn</h1>
+<div class="row align-items-center">
+    <div class="col-md-4">
+        <MudItem>
+            <MudDateRangePicker @bind-DateRange="@_dateRange" Margin="Margin.Dense"
+                                PlaceholderStart="Start Date" PlaceholderEnd="End Date"
+                                PickerVariant="PickerVariant.Dialog" Label="Picker Date"
+                                DateFormat="dd/MM/yyyy"
+                                Clearable="@_clearable" />
+        </MudItem>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-success" @onclick="Search" disabled="@IsLoading">Tìm kiếm</button>
+    </div>
+</div>
+
+@if (IsLoading)
+{
+    <p><em>Đang tải dữ liệu...</em></p>
+}
+else if (xuatNhapTons == null || !xuatNhapTons.Any())
+{
+    <p><strong>Không có dữ liệu nào phù hợp với tìm kiếm.</strong></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã sản phẩm</th>
+                <th>Tên sản phẩm</th>
+                <th>Số lượng đầu kỳ</th>
+                <th>Số lượng nhập</th>
+                <th>Số lượng xuất</th>
+                <th>Số lượng cuối kỳ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in xuatNhapTons)
+            {
+                <tr>
+                    <td>@forecast.Ma_San_Pham</td>
+                    <td>@forecast.Ten_San_Pham</td>
+                    <td>@forecast.SL_Dau_Ky</td>
+                    <td>
+                        @forecast.SL_Nhap
+                    </td>
+                    <td>@forecast.SL_Xuat</td>
+                    <td>@forecast.SL_Cuoi_ky</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private DateRange _dateRange { get; set; } = new DateRange();
+    public IEnumerable<Report_Xuat_Nhap_Ton_DTO>? xuatNhapTons { get; set; }
+    private bool IsLoading { get; set; }
+    private bool _clearable = true;
+
+    private async Task Search()
+    {
+        try
+        {
+            IsLoading = true;
+            xuatNhapTons = null;
+            if (_dateRange.Start.HasValue || _dateRange.End.HasValue)
+            {
+                var start = _dateRange.Start!.Value.ToString("yyyy-MM-dd");
+                var end = _dateRange.End!.Value.ToString("yyyy-MM-dd");
+                xuatNhapTons = await ReportXuatNhapTonInterface.GetReportXuatNhapSPAynsc(start, end);
+            }
+            else
+            {
+                // Nếu không chọn ngày nào thì lấy hết tất cả
+                ToastService.ShowError($"Chọn khoảng thời gian để xem báo cáo.");
+                //xuatNhapTons = await ReportXuatNhapTonInterface.GetReportXuatNhapSPAynsc(null, null);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi tìm kiếm: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+
+    }
+
+}
