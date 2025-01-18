@@ -153,7 +153,7 @@ namespace PracticeInternship.Infrastructure.Repositories
             {
                 var response = new DM_Xuat_Kho_Raw_Data_Response();
                 response.Id = item.Id.ToString();
-                response.Xuat_Kho_Id= item.Xuat_Kho_Id.ToString();
+                response.Xuat_Kho_Id = item.Xuat_Kho_Id.ToString();
                 response.San_Pham_Id = item.San_Pham_Id.ToString();
                 response.SL_Xuat = item.SL_Xuat;
                 response.Don_Gia_Xuat = item.Don_Gia_Xuat;
@@ -214,6 +214,38 @@ namespace PracticeInternship.Infrastructure.Repositories
             {
                 throw new Exception($"Error occurred updating existing DM_San_Pham, {ex.Message}");
             }
+        }
+
+        public async Task<IEnumerable<DM_Xuat_Kho_Search_Ngay_Nhap_kho_Response>> GetAllDetailOfXuatKhoBySearchDate(string startDateInput, string endDateInput)
+        {
+            DateTime? startDate = string.IsNullOrWhiteSpace(startDateInput) ? null
+                                        : DateTime.TryParse(startDateInput, out var parsedStartDate)
+                                        ? parsedStartDate
+                                        : throw new ArgumentException("Invalid start date format");
+
+            DateTime? endDate = string.IsNullOrWhiteSpace(endDateInput) ? null
+                                        : DateTime.TryParse(endDateInput, out var parsedEndDate)
+                                        ? parsedEndDate
+                                        : throw new ArgumentException("Invalid end date format");
+
+            var response = await (from nk in context.DM_Xuat_Kho
+                                  join xk_raw_data in context.DM_Xuat_Kho_Raw_Data on nk.Id equals xk_raw_data.Xuat_Kho_Id
+                                  join sp in context.DM_San_Pham on xk_raw_data.San_Pham_Id equals sp.Id
+                                  where (!startDate.HasValue || nk.Ngay_Xuat_Kho >= startDate.Value)
+                                      && (!endDate.HasValue || nk.Ngay_Xuat_Kho <= endDate.Value)
+                                  orderby nk.Ngay_Xuat_Kho descending
+                                  select new DM_Xuat_Kho_Search_Ngay_Nhap_kho_Response
+                                  {
+                                      Ngay_Xuat_Kho = nk.Ngay_Xuat_Kho,
+                                      So_Phieu_Xuat_Kho = nk.So_Phieu_Xuat_Kho,
+                                      Ma_San_Pham = sp.Ma_San_Pham,
+                                      Ten_San_Pham = sp.Ten_San_Pham,
+                                      SL_Xuat = xk_raw_data.SL_Xuat,
+                                      Don_Gia_Xuat = xk_raw_data.Don_Gia_Xuat,
+                                      Tri_Gia = xk_raw_data.SL_Xuat * xk_raw_data.Don_Gia_Xuat
+                                  }).ToListAsync();
+
+            return response;
         }
     }
 }

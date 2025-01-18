@@ -71,6 +71,16 @@ namespace PracticeInternship.Application.DTOs
         public decimal Don_Gia_Xuat { get; set; }
 
         public string? Ten_Don_Vi_Tinh { get; set; }
+    }
 
+    public class DM_Xuat_Kho_Search_Ngay_Nhap_kho_Response
+    {
+        public DateTime Ngay_Xuat_Kho { get; set; }
+        public string? So_Phieu_Xuat_Kho { get; set; }
+        public string? Ma_San_Pham { get; set; }
+        public string? Ten_San_Pham { get; set; }
+        public int SL_Xuat { get; set; }
+        public decimal Don_Gia_Xuat { get; set; }
+        public decimal Tri_Gia { get; set; }
     }
 }
