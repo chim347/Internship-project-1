@@ -50,6 +50,18 @@ namespace PracticeInternship.Application.DTOs
         public decimal Don_Gia_Nhap { get; set; }
     }
 
+    public class DM_Nhap_Kho_Search_Ngay_Nhap_kho_Response
+    {
+        public DateTime Ngay_Nhap_kho { get; set; }
+        public string? So_Phieu_Nhap_Kho { get; set; }
+        public string? Ten_NCC { get; set; }
+        public string? Ma_San_Pham { get; set; }
+        public string? Ten_San_Pham { get; set; }
+        public int SL_Nhap { get; set; }
+        public decimal Don_Gia_Nhap { get; set; }
+        public decimal Tri_Gia { get; set; }
+    }
+
     public class DM_Nhap_Kho_Detail_Response
     {
         public string? Id { get; set; }

@@ -137,7 +137,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 Id = nhapKho.Id.ToString(),
                 So_Phieu_Nhap_Kho = nhapKho.So_Phieu_Nhap_Kho,
                 Kho_Id = nhapKho.Kho_Id.ToString(),
-                Ten_Kho = await context.DM_Kho.Where(k=>k.Id == nhapKho.Kho_Id).Select(k => k.Ten_Kho).SingleOrDefaultAsync(),
+                Ten_Kho = await context.DM_Kho.Where(k => k.Id == nhapKho.Kho_Id).Select(k => k.Ten_Kho).SingleOrDefaultAsync(),
                 NCC_Id = nhapKho.NCC_Id.ToString(),
                 Ngay_Nhap_kho = nhapKho.Ngay_Nhap_kho,
                 Ghi_Chu = nhapKho.Ghi_Chu,
@@ -219,6 +219,41 @@ namespace PracticeInternship.Infrastructure.Repositories
             {
                 throw new Exception($"Error occurred updating existing DM_San_Pham, {ex.Message}");
             }
+        }
+
+        public async Task<IEnumerable<DM_Nhap_Kho_Search_Ngay_Nhap_kho_Response>> GetAllDetailOfNhapKhoBySearchDate(string startDateInput, string endDateInput)
+        {
+            DateTime? startDate = string.IsNullOrWhiteSpace(startDateInput) ? null
+                                        : DateTime.TryParse(startDateInput, out var parsedStartDate)
+                                        ? parsedStartDate
+                                        : throw new ArgumentException("Invalid start date format");
+
+            DateTime? endDate = string.IsNullOrWhiteSpace(endDateInput) ? null 
+                                        : DateTime.TryParse(endDateInput, out var parsedEndDate)
+                                        ? parsedEndDate
+                                        : throw new ArgumentException("Invalid end date format");
+
+            var response = await (from nk in context.DM_Nhap_Kho
+                            join ncc in context.DM_NCC on nk.NCC_Id equals ncc.Id
+                            join nk_raw_data in context.DM_Nhap_Kho_Raw_Data on nk.Id equals nk_raw_data.Nhap_Kho_Id
+                            join sp in context.DM_San_Pham on nk_raw_data.San_Pham_Id equals sp.Id
+                            join kho in context.DM_Kho on nk.Kho_Id equals kho.Id
+                            where (!startDate.HasValue || nk.Ngay_Nhap_kho >= startDate.Value)
+                                && (!endDate.HasValue || nk.Ngay_Nhap_kho <= endDate.Value)
+                            orderby nk.Ngay_Nhap_kho
+                            select new DM_Nhap_Kho_Search_Ngay_Nhap_kho_Response
+                            {
+                                Ngay_Nhap_kho = nk.Ngay_Nhap_kho,
+                                So_Phieu_Nhap_Kho = nk.So_Phieu_Nhap_Kho,
+                                Ten_NCC = ncc.Ten_NCC,
+                                Ma_San_Pham = sp.Ma_San_Pham,
+                                Ten_San_Pham = sp.Ten_San_Pham,
+                                SL_Nhap = nk_raw_data.SL_Nhap,
+                                Don_Gia_Nhap = nk_raw_data.Don_Gia_Nhap,
+                                Tri_Gia = nk_raw_data.SL_Nhap * nk_raw_data.Don_Gia_Nhap
+                            }).ToListAsync();
+
+            return response;
         }
     }
 }

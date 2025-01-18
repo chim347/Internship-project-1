@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
+@using MudBlazor
 
 <div class="page">
     <div class="sidebar">
@@ -29,3 +30,5 @@
                 SuccessIcon="fa fa-thumbs-up"
                 ErrorIcon="fa fa-bug" />
 <CascadingBlazoredModal></CascadingBlazoredModal>
+<MudPopoverProvider />
+<MudThemeProvider></MudThemeProvider>

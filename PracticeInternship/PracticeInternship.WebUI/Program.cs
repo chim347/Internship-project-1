@@ -1,5 +1,6 @@
 using Blazored.Modal;
 using Blazored.Toast;
+using MudBlazor.Services;
 using PracticeInternship.Infrastructure.DependencyInjection;
 using PracticeInternship.WebUI.Components;
 
@@ -13,6 +14,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

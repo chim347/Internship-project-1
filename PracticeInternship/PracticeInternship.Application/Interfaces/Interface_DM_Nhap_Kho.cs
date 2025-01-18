@@ -17,5 +17,8 @@ namespace PracticeInternship.Application.Interfaces
         // get detail của 1 phiếu nhập kho với các thông tin từ DM_Nhap_Kho_Raw_Data
         Task<DM_Nhap_Kho_Detail_Response> GetDetailOfNhapKhoById(Guid id);
 
+        // get danh sách detail của 1 phiếu nhập kho với các
+        // thông tin từ DM_Nhap_Kho_Raw_Data bằng nút search ngày nhập
+        Task<IEnumerable<DM_Nhap_Kho_Search_Ngay_Nhap_kho_Response>> GetAllDetailOfNhapKhoBySearchDate(string startDate, string endDate);
     }
 }
