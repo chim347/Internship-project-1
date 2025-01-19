@@ -162,6 +162,7 @@ namespace PracticeInternship.Infrastructure.Repositories
                 var sanPhamExist = await context.DM_San_Pham.Where(sp => sp.Id == item.San_Pham_Id).SingleOrDefaultAsync();
                 response.Ma_San_Pham = sanPhamExist!.Ma_San_Pham;
                 response.Ten_San_Pham = sanPhamExist!.Ten_San_Pham;
+                response.Ghi_Chu_San_Pham = sanPhamExist!.Ghi_Chu;
                 response.Ten_Don_Vi_Tinh = await context.DM_Don_Vi_Tinh.Where(dvt => dvt.Id == sanPhamExist!.Don_Vi_Tinh_Id).Select(dvt => dvt.Ten_Don_Vi_Tinh).SingleOrDefaultAsync();
                 listResponse.Add(response);
             }

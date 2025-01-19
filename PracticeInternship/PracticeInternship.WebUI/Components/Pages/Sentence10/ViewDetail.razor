@@ -2,6 +2,8 @@
 @using System.Globalization
 @using PracticeInternship.Application.DTOs
 @using PracticeInternship.WebUI.Components.Pages.Sentence1
+@using ClosedXML.Excel;
+@inject IJSRuntime JSRuntime
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Nhap_Kho NhapKhoInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_Kho KhoInterface
 @inject PracticeInternship.Application.Interfaces.Interface_DM_NCC NCCInterface
@@ -10,6 +12,11 @@
 @inject IToastService ToastService
 
 <PageTitle>Thông tin phiếu nhập kho</PageTitle>
+<div class="row mb-4 justify-content-end">
+    <div class="col-auto">
+        <button style="width: 150px;" class="btn btn-primary" @onclick="ExportToExcel">Xuất Excel</button>
+    </div>
+</div>
 @{
     var culture = CultureInfo.GetCultureInfo("en-US");
     culture = (CultureInfo)culture.Clone();
@@ -35,7 +42,7 @@
             <div class="text-end" style="font-size:13px; margin-left:150px;">(Ban Hành theo QĐ Số 15/2006/QĐ-BTC Ngày 20/03/2006 của Bộ Trưởng BTC)</div>
         </div>
     </div>
-    <div>Họ tên người giao hàng: </div>
+    <div style="margin-top: -6px;">Họ tên người giao hàng: </div>
     <div class="row">
         <div class="col">
             <div>Theo TK số: </div>
@@ -289,5 +296,145 @@
         return result.Trim();
     }
     #endregion
+
+    #region export excel file
+    private async Task ExportToExcel()
+    {
+        using var workbook = new ClosedXML.Excel.XLWorkbook();
+        var worksheet = workbook.Worksheets.Add("Phiếu Nhập Kho");
+        int row = 1;
+        decimal sumTriGia = 0;
+        int sumSL_Nhap = 0;
+        var culture = CultureInfo.GetCultureInfo("en-US");
+        culture = (CultureInfo)culture.Clone();
+        culture.NumberFormat.CurrencySymbol = "";
+        worksheet.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.White;
+
+        // Header
+        worksheet.Cell(row, 1).Value = "STT";
+        worksheet.Cell(row, 2).Value = "Tên Sản Phẩm";
+        worksheet.Cell(row, 3).Value = "Mã Sản Phẩm";
+        worksheet.Cell(row, 4).Value = "Đơn Vị Tính";
+        worksheet.Cell(row, 5).Value = "Số Lượng";
+        worksheet.Cell(row, 6).Value = "Đơn Giá";
+        worksheet.Cell(row, 7).Value = "Thành Tiền";
+
+        var headerRange = worksheet.Range(row, 1, row, 7);
+        headerRange.Style.Font.Bold = true;
+        headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.LightGray;
+        headerRange.Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Center;
+        headerRange.Style.Alignment.Vertical = ClosedXML.Excel.XLAlignmentVerticalValues.Center;
+        // Set border color to black
+        headerRange.Style.Border.OutsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+        headerRange.Style.Border.OutsideBorderColor = ClosedXML.Excel.XLColor.Black;
+        headerRange.Style.Border.InsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+        headerRange.Style.Border.InsideBorderColor = ClosedXML.Excel.XLColor.Black;
+
+        // Data
+        if (dM_Nhap_Kho_Raw_Data_Response != null)
+        {
+            foreach (var product in dM_Nhap_Kho_Raw_Data_Response)
+            {
+                row++;
+                worksheet.Cell(row, 1).Value = row - 1;
+                worksheet.Cell(row, 2).Value = product.Ten_San_Pham;
+                worksheet.Cell(row, 3).Value = product.Ma_San_Pham;
+                worksheet.Cell(row, 4).Value = product.Ten_Don_Vi_Tinh;
+                worksheet.Cell(row, 5).Value = product.SL_Nhap;
+                worksheet.Cell(row, 6).Value = product.Don_Gia_Nhap.ToString("C", culture);
+                worksheet.Cell(row, 7).Value = (product.SL_Nhap * product.Don_Gia_Nhap).ToString("C", culture);
+                sumTriGia = sumTriGia + (product.SL_Nhap * product.Don_Gia_Nhap);
+                sumSL_Nhap = sumSL_Nhap + product.SL_Nhap;
+
+                worksheet.Cell(row, 6).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Right;
+                worksheet.Cell(row, 7).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Right;
+                var dataRange = worksheet.Range(row, 1, row, 7);
+                dataRange.Style.Border.OutsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+                dataRange.Style.Border.OutsideBorderColor = ClosedXML.Excel.XLColor.Black;
+                dataRange.Style.Border.InsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+                dataRange.Style.Border.InsideBorderColor = ClosedXML.Excel.XLColor.Black;
+            }
+        }
+
+        row++;
+        worksheet.Range(row, 1, row, 4).Merge().Value = "Tổng";
+        worksheet.Range(row, 1, row, 4).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Right;
+
+        worksheet.Cell(row, 5).Value = sumSL_Nhap.ToString("C", culture);
+        worksheet.Cell(row, 5).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Right;
+
+        worksheet.Cell(row, 7).Value = sumTriGia.ToString("C", culture);
+        worksheet.Cell(row, 7).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Right;
+
+
+        var totalRange = worksheet.Range(row, 1, row, 7);
+        totalRange.Style.Font.Bold = true;
+        totalRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.LightGray;
+        totalRange.Style.Border.OutsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+        totalRange.Style.Border.OutsideBorderColor = ClosedXML.Excel.XLColor.Black;
+        totalRange.Style.Border.InsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+        totalRange.Style.Border.InsideBorderColor = ClosedXML.Excel.XLColor.Black;
+        worksheet.Rows().Height = 20;
+
+        worksheet.Columns().AdjustToContents();
+
+        // Set specific width and height for columns and rows
+        worksheet.Column(1).Width = 5;  // STT
+        worksheet.Column(2).Width = 25; // Tên Sản Phẩm
+        worksheet.Column(3).Width = 15; // Mã Sản Phẩm
+        worksheet.Column(4).Width = 15; // Đơn Vị Tính
+        worksheet.Column(5).Width = 10; // Số Lượng
+        worksheet.Column(6).Width = 15; // Đơn Giá
+        worksheet.Column(7).Width = 15; // Thành Tiền
+
+        worksheet.Rows().Height = 20;
+
+        // Add content below the table
+        row += 2; // Skip 2 rows after the table
+        worksheet.Range(row, 1, row, 7).Merge().Value = $"Tổng Số Tiền (Viết bằng chữ):  {NumberToWords(sumTriGia)}";
+        worksheet.Range(row, 1, row, 7).Style.Font.Bold = true;
+        worksheet.Rows().Height = 20;
+
+        // Add "Số Chứng Từ Gốc Kèm Theo"
+        row++;
+        worksheet.Range(row, 1, row, 4).Merge().Value = "Số Chứng Từ Gốc Kèm Theo: ";
+        worksheet.Range(row, 1, row, 4).Style.Font.Bold = true;
+        worksheet.Range(row, 5, row, 7).Merge().Value = "Ngày ....... Tháng ....... Năm .......";
+        worksheet.Range(row, 5, row, 7).Style.Font.Italic = true;
+        worksheet.Rows().Height = 20;
+
+        // Add Signature rows
+        row += 3;
+        worksheet.Cell(row, 2).Value = "Người Lập Phiếu";
+        worksheet.Cell(row + 1, 2).Value = "(Ký, họ tên)";
+        worksheet.Cell(row, 4).Value = "Người Giao Hàng";
+        worksheet.Cell(row + 1, 4).Value = "(Ký, họ tên)";
+        worksheet.Cell(row, 6).Value = "Thủ Kho";
+        worksheet.Cell(row + 1, 6).Value = "(Ký, họ tên)";
+        worksheet.Cell(row, 8).Value = "Kế Toán Trưởng";
+        worksheet.Cell(row + 1, 8).Value = "(Ký, họ tên)";
+
+        worksheet.Range(row, 1, row + 1, 8).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Center;
+        worksheet.Range(row, 1, row + 1, 8).Style.Alignment.Vertical = ClosedXML.Excel.XLAlignmentVerticalValues.Center;
+        worksheet.Range(row, 1, row + 1, 8).Style.Font.FontSize = 12;
+
+        worksheet.PageSetup.FitToPages(1, 1);
+        worksheet.PageSetup.Margins.Top = 0.5;
+        worksheet.PageSetup.Margins.Bottom = 0.5;
+        worksheet.PageSetup.Margins.Left = 0.5;
+        worksheet.PageSetup.Margins.Right = 0.5;
+
+        // Export to memory stream
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        stream.Seek(0, SeekOrigin.Begin);
+
+        // Trigger file download
+        var fileName = $"PhieuNhapKho_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+        var fileBytes = stream.ToArray();
+        await JSRuntime.InvokeVoidAsync("downloadFile", fileName, Convert.ToBase64String(fileBytes), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+    #endregion
 }
+
 

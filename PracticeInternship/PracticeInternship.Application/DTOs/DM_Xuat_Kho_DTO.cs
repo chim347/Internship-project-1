@@ -65,6 +65,7 @@ namespace PracticeInternship.Application.DTOs
         public string? San_Pham_Id { get; set; }
         public string? Ma_San_Pham { get; set; }
         public string? Ten_San_Pham { get; set; }
+        public string? Ghi_Chu_San_Pham { get; set; }
 
         public int SL_Xuat { get; set; }
 

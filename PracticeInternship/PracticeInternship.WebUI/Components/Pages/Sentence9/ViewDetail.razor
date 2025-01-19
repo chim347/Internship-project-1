@@ -10,6 +10,11 @@
 @inject IToastService ToastService
 
 <PageTitle>Thông tin phiếu nhập kho</PageTitle>
+@{
+    var culture = CultureInfo.GetCultureInfo("en-US");
+    culture = (CultureInfo)culture.Clone();
+    culture.NumberFormat.CurrencySymbol = "";
+}
 <h2 class="d-flex justify-content-center">PHIẾU NHẬP KHO</h2>
 <div class="mb-3">Số phiếu nhập: </div>
 
@@ -44,11 +49,11 @@
                         <td>@product.Ma_San_Pham</td>
                         <td>@product.Ten_Don_Vi_Tinh</td>
                         <td>@product.SL_Nhap</td>
-                        <td>@product.Don_Gia_Nhap.ToString("C", CultureInfo.GetCultureInfo("vi-VN"))</td>
+                        <td>@product.Don_Gia_Nhap.ToString("C", culture)</td>
                         <td>
                             @{
                                 var total = product.SL_Nhap * product.Don_Gia_Nhap;
-                                var format = total.ToString("C", CultureInfo.GetCultureInfo("vi-VN"));
+                                var format = total.ToString("C", culture);
                             }
                             @format
                         </td>
@@ -97,7 +102,7 @@
                             sumDonGiaNhap = sumDonGiaNhap + (product.SL_Nhap * product.Don_Gia_Nhap);
                         }
                     }
-                    @sumDonGiaNhap.ToString("C", CultureInfo.GetCultureInfo("vi-VN"))
+                    @sumDonGiaNhap.ToString("C", culture)
                 </td>
                 <td>
                     <button class="btn btn-success btn-sm" @onclick="() => OpenDialogAdd()">Thêm sản phẩm</button>
